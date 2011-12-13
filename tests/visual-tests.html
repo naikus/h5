@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>h5 Tests</title>
+      <!--[if LT IE 8]>
+         <script src="cssQuery-p.js" type="text/javascript"></script>
+         <script type="text/javascript">
+            window.selectorEngine = cssQuery;
+         </script>
+      <![endif]-->
+      <script src="../h5.js" type="text/javascript"></script>
+      <style type="text/css">
+         #sho {
+            background-color: #eee;
+            height: 100px;
+         }
+      </style>
+   </head>
+   <body>
+      <div id="sho"></div>
+      <input type="button" id="hello" value="Say Hello" />
+      <input type="button" id="hide" value="Hide" />
+      <input type="button" id="show" value="Show" />
+      <input type="button" id="append" value="Append" />
+      
+      
+      <table id="mytable">
+         
+      </table>
+        <script type="text/javascript">
+
+          $.plugin("sayHello", function() {});
+
+          $.plugin("sayHello", function(options) {
+             this.html(options || "Hello");
+             return this;
+          });
+
+          $.plugin({
+             hide: function() {
+                this.get(0).style.display = "none";
+                return this;
+             },
+             show: function() {
+                this.get(0).style.display = "";
+                return this;
+             }
+          });
+
+
+          $("#hello").get(0).onclick = function() {
+             $("#sho").sayHello(", Naikus you are ").append(" Awesome!").prepend("Sweet ");
+          };
+
+          $("#hide").get(0).onclick = function() {
+             $("#sho").hide();
+          };
+
+          $("#show").get(0).onclick = function() {
+             $("#sho").show();
+          };
+
+          $("#append").get(0).onclick = function() {
+             $("#mytable").append("<tr><td>Hello World</td></tr>");
+          };
+        </script>
+   </body>
+</html>

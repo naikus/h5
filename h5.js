@@ -36,7 +36,8 @@
         doc = global.document, 
         h5;
 
-    /* ------------------------------- Utility functions ----------------------------------------- */
+    /* ------------------------------- Utility functions ---------------------------------------- */
+    
     /**
      * Console logging
      */
@@ -141,6 +142,7 @@
         }
     }
    
+    // @TODO: Relook and fix the map function
     function map(arr, callback, thisObj) {
         var ret = [];
         forEach(arr, function(val, i, arr) {
@@ -179,9 +181,10 @@
                 ELEMENT_NODE: 1,
                 ATTRIBUTE_NODE: 2,
                 TEXT_NODE: 3,
-                // CDATA_SECTION_NODE: 4, ENTITY_REFERENCE_NODE: 5, ENTITY_NODE: 6, PROCESSING_INSTRUCTION_NODE: 7, COMMENT_NODE: 8,
+                // CDATA_SECTION_NODE: 4, ENTITY_REFERENCE_NODE: 5, ENTITY_NODE: 6, 
+                // PROCESSING_INSTRUCTION_NODE: 7, COMMENT_NODE: 8,
                 DOCUMENT_NODE: 9
-            //, DOCUMENT_TYPE_NODE: 10, DOCUMENT_FRAGMENT_NODE: 11, NOTATION_NODE: 12
+                //, DOCUMENT_TYPE_NODE: 10, DOCUMENT_FRAGMENT_NODE: 11, NOTATION_NODE: 12
             },
 
             domApi, h5Proto;
@@ -458,6 +461,8 @@
         };
 
         h5Proto = {
+            /* ------------------------ Basic Methods ----------------------- */
+           
             /**
              * Gets the element at the specified index in this nodelist
              * @param {Number} idx The index of the element to get
@@ -470,9 +475,37 @@
             },
             
             count: function() {
-                var elements = this.elements;
-                return elements ? elements.length : 0;
+                return this.elements.length;
             },
+            
+            /**
+             * Finds the element(s) matching the specified selector within the context of the current
+             * element (this can be null, then it works just like $(...))
+             * @param {String} selector The selector of the elements to find
+             * @return {Object} the $ object matched for chaining
+             * @example
+             * var pees = $("#foo").find("p"); // finds all the "p" elements under the element with id "foo"
+             * // This finds the span element in element in the html and sets its content to stupid
+             * $("&lt;p id="bar" class="foo baz"&gt;Hello &lt;span&gt;cruel&lt;/span&gt; world&lt;/p&gt;").find("span").html("stupid");
+             * // Will result in 
+             * &lt;p id="bar" class="foo baz"&gt;Hello &lt;span&gt;stupid&lt;/span&gt; world&lt;/p&gt;
+             */
+            find: function(selector)   { 
+                var elements = this.elements;
+                return elements.length === 0 ? nodelist(selector) : nodelist(selector, elements[0]);
+            },
+            
+            forEach: function(callback) {
+               forEach(this.elements, callback, this);
+               return this;
+            },
+            
+            filter: function(callback) {
+               return filter(this.elements, callback, this);
+            },
+            
+            
+            /* ------------------------ DOM Methods ------------------------- */
             
             /**
              * Gets or sets the html string as inner html to all the elements in the current matched 
@@ -505,7 +538,7 @@
              *
              * @memberOf nodelist
              */
-            attr: function(name, value)   {       
+            attr: function(name, value)   {
                 var n = name === "class" ? "className" : name, elem, elements = this.elements;
 
                 if(elements.length === 0)  {
@@ -662,26 +695,6 @@
             },
             
             /**
-             * Finds the element(s) matching the specified selector within the context of the current
-             * element (this can be null, then it works just like $(...))
-             * @param {String} selector The selector of the elements to find
-             * @return {Object} the $ object matched for chaining
-             * @example
-             * var pees = $("#foo").find("p"); // finds all the "p" elements under the element with id "foo"
-             * // This finds the span element in element in the html and sets its content to stupid
-             * $("&lt;p id="bar" class="foo baz"&gt;Hello &lt;span&gt;cruel&lt;/span&gt; world&lt;/p&gt;").find("span").html("stupid");
-             * // Will result in 
-             * &lt;p id="bar" class="foo baz"&gt;Hello &lt;span&gt;stupid&lt;/span&gt; world&lt;/p&gt;
-             */
-            find: function(selector)   { 
-                var elements = this.elements;
-                if(getTypeOf(selector) !== "String") {
-                    return selector;
-                }
-                return elements.length === 0 ? nodelist(selector) : nodelist(selector, elements[0]);
-            },
-            
-            /**
              * Determines whether the current matched element has the specified class in its className
              * @param {String} cl The class name to check
              * @return true if the current element has the specified class
@@ -798,14 +811,15 @@
             return h5;
         }
         
-        /**
-         * Expose useful utility functions
-         */
+        // Expose useful utility functions
         nodelist.forEach = forEach;
         nodelist.filter = filter;
         nodelist.map  = map;
         nodelist.getTypeOf = getTypeOf;
         nodelist.isTypeOf = isTypeOf;
+        nodelist.slice = slice;
+        nodelist.extend = extend;
+        nodelist.getFragments = getFrags;
         
         /**
          * Expose a plugin API to extend 

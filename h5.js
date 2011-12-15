@@ -511,7 +511,7 @@
                 var n = name === "class" ? "className" : name, elem, elements = this.elements;
 
                 if(elements.length === 0)  {
-                    return this;
+                    return value ? this : null;
                 }
                 elem = elements[0];
                 if(arguments.length === 1) {

@@ -87,6 +87,16 @@
         }
         return arr;
     }
+    
+    // normalize the slice function
+    (function() {
+        try {
+            slice.call(document.getElementsByTagName("html")); // this fails below IE9
+        }catch(err) {
+            console.log("Array slice does not work on array-like objects, using custom slice");
+            slice = sliceList;
+        }
+    })();
    
     /**
      * Extends the target object from multiple sources
@@ -101,17 +111,6 @@
             }
         });
     }
-   
-   
-    // normalize the slice function
-    (function() {
-        try {
-            slice.call(document.getElementsByTagName("html")); // this fails below IE9
-        }catch(err) {
-            console.log("Array slice does not work on array-like objects, using custom slice");
-            slice = sliceList;
-        }
-    })();
    
    
     /* ---------------------------- iteration functions ------------------------------------------ */
@@ -193,8 +192,7 @@
                 return false;
             }
             var thatType = getTypeOf(that);
-            return thatType === "NodeList" || thatType === "HTMLCollection" || 
-            (that.item && that.length);
+            return thatType === "NodeList" || thatType === "HTMLCollection" || (that.item && (that.length !== undef));
         }
          
         function validElem(elem)   {
@@ -799,7 +797,19 @@
             h5.selector = elemSel.s;
             return h5;
         }
-      
+        
+        /**
+         * Expose useful utility functions
+         */
+        nodelist.forEach = forEach;
+        nodelist.filter = filter;
+        nodelist.map  = map;
+        nodelist.getTypeOf = getTypeOf;
+        nodelist.isTypeOf = isTypeOf;
+        
+        /**
+         * Expose a plugin API to extend 
+         */
         nodelist.plugin = function(/* [name, pluginFunc] | object */) {
             var pluginObj = arguments[0], pluginFunc = arguments[1], name = pluginObj, 
             arg1Type = getTypeOf(pluginObj);      

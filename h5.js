@@ -39,7 +39,8 @@
     /* ------------------------------- Utility functions ---------------------------------------- */
     
     /**
-     * Console logging
+     * Console logging API that just about works accross browsers. The log messages are ignored
+     * if no logging feature is available in the browser
      */
     if(typeof global.console === "undefined") {
         global.console = (function() {
@@ -50,6 +51,10 @@
         })();
     }
    
+    /**
+     * Creates a new object whose prototype is the specified object
+     * @param {Object} objFrom The object to extend from
+     */
     function createObject(objFrom) {
         if(Object.create) {
             return Object.create(objFrom);
@@ -59,6 +64,22 @@
         return new F();
     }
    
+    /**
+     * Gets the type of object specified. The type returned is the [[Class]] internal property
+     * of the specified object. For build in types the values are:
+     * -----------------------------------------------------------
+     * String  
+     * Number  
+     * Boolean 
+     * Date    
+     * Error   
+     * Array   
+     * Function
+     * RegExp  
+     * Object  
+     *
+     * @param {Object} that The object/function/any of which the type is to be determined
+     */
     function getTypeOf(that) {
         // why 8? cause the result is always of pattern '[object <type>]'
         return objToString.call(that).slice(8, -1); 
@@ -81,6 +102,10 @@
         if(isArray(this)) {
             arr = nSlice.call(this, s, e);
         }else {
+            // so that we can have things like sliceList(1, -1);
+            if(e < 0) { 
+               e = len - e;
+            }
             arr = [];
             for(i = s; i < e; i++) {
                 arr[arr.length] = this[i];
@@ -116,6 +141,19 @@
    
     /* ---------------------------- iteration functions ------------------------------------------ */
    
+    /**
+     * Iterates over the array (or arraylike or object) <tt>arr</tt> and calls the <tt>callback</tt>
+     * for each iteration with the scope as <tt>thisObject</tt>. Uses the native forEach if its
+     * available on the specified array or obejct.
+     * @param {Object|Array} arr The array or object to iterate, if the object specified is an array
+     * its elements are iterated, if the object is a "object" its values and keys are iterated
+     * @param {Function} callback The callback function to call for each iteration. If an array is
+     * iterated, the callback is called as <tt>callback(val, index, array)</tt> else the callback
+     * is called as <tt>callback(value, key, obj)</tt>
+     * @param {Object} thisObj An optional scope object that will be the value of "this" inside
+     * the callback
+     * @function
+     */  
     function forEach(arr, callback, thisObj) {
         var o = Object(arr), forEach = arr.forEach, key;
         if(forEach && isFunction(forEach)) {
@@ -126,7 +164,22 @@
             }
         }
     }
-   
+    
+    /**
+     * Iterates over the array (or arraylike or object) <tt>arr</tt> and calls the <tt>callback</tt>
+     * for each iteration with the scope as <tt>thisObject</tt> collecting or filtering objects for 
+     * which the callback returns true. Uses the native <tt>Array.filter</tt> if its available on 
+     * the specified array or obejct
+     * @param {Object|Array} arr The array or object to iterate, if the object specified is an array
+     * its elements are iterated, if the object is a "object" its values and keys are iterated
+     * @param {Function} callback The callback function to call for each iteration. If an array is
+     * iterated, the callback is called as <tt>callback(val, index, array)</tt> else the callback
+     * is called as <tt>callback(value, key, obj)</tt>
+     * @param {Object} thisObj An optional scope object that will be the value of "this" inside
+     * the callback
+     * @return An array of filtered objects
+     * @function
+     */
     function filter(arr, callback, thisObj) {
         var o = Object(arr), filter = arr.filter, ret;
         if(filter && isFunction(filter)) {
@@ -142,14 +195,15 @@
         }
     }
    
-    // @TODO: Relook and fix the map function
     function map(arr, callback, thisObj) {
         var ret = [];
         forEach(arr, function(val, i, arr) {
-            var retVal = callback.call(thisObj, val);
-            if(retVal !== null && typeof retVal !== "undefined") {
-                ret[ret.length] = retVal;
-            }
+           if(typeof val !== "undefined") {
+               var retVal = callback.call(thisObj, val);
+               if(retVal !== null && typeof retVal !== "undefined") {
+                   ret[ret.length] = retVal;
+               }
+           }
         });
     }
 
@@ -332,7 +386,8 @@
 
 
 /**
- * The DOM manipulation module
+ * The DOM manipulation module. This provides various convenience methods for working with DOM and
+ * css
  */
 (function($) {
     var undef,
@@ -352,7 +407,12 @@
              //, DOCUMENT_TYPE_NODE: 10, DOCUMENT_FRAGMENT_NODE: 11, NOTATION_NODE: 12
          },
          domApi;
-         
+     
+     /**
+      * Removes all the children of the specified element using DOM APIs
+      * This is used as a fallback method instead of setting innerHTML as "" as this fails in
+      * some versions of IE browsers
+      */
      function removeAllDom(elem) {
          // In a few cases in IE, the innerHTML of a table is a read only property
          // thats why we have to use dom 

@@ -6,8 +6,8 @@ test("Basic", function() {
    ok($, "$");
 });
 
+test("h5", function(){
 
-test("h5", function() {
    equals($().count(), 0, "$()");
    equals($("").count(), 0, "$('')");
    //raises(function() {$("#");},  "$('#') Throws Syntax Error"); fails in IE6 becacuse of CssQuery
@@ -19,6 +19,24 @@ test("h5", function() {
    
    // $.get
    equals($("div", $("#qunit-fixture")).get(0).nodeName.toLowerCase(), "div", "$.get() test");
+   
+   // $.forEach
+   var x = 0;
+   $.forEach([1,2,3,4,5], function(v) {
+       x += v;
+   });
+   equals(x, 15, "$.forEach() test");
+   
+   x = $.filter([1,2,3,4,5], function(v) {
+       return v % 2 === 0;
+   });
+   equals(x.join(","), "2,4", "$.filter() test");
+      
+});
+
+
+test("dom", function() {
+
    
    // $.html
    equals($("#innerHTML").html(), "innerHTML test", "$.html() test");
@@ -37,6 +55,9 @@ test("h5", function() {
    
    // $.append
    equals($("#mytable").append("<tr id='foo'><td>Hello</td></tr>").find("#foo:first-child").html().toLowerCase(), "<td>hello</td>", "Table insertion test");
+   
+   equals($("#mytable tr#foo").prepend("<tr id='boo'><td>Yello</td></tr>").find("#boo:first-child").html().toLowerCase(), "<td>yello</td>", "Table insertion test");
+   
    
    // $.val
    equals($("#foo").val("foo").val(), "foo", "$.val() test");

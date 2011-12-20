@@ -131,7 +131,7 @@
      */
     function extend(target, source /*, souce1, souce2, ... */) {
         var sources = slice.call(arguments, 1);
-        sources.forEach(function(src) {
+        forEach(sources, function(src) {
             for(var k in src) {
                 target[k] = src[k];
             }
@@ -234,12 +234,18 @@
 
       
         function fragments(html, tgName) {
-            var c, ret, children;
+            var c, ret, children, tag;
             if(!tgName) {
                 ret = htmlRe.exec(html);
                 tgName = ret ? ret[1] : null;
             }
             c = containers[tgName] || div;
+            if(isIe) {
+               tag = c.tagName.toLowerCase();
+               if(tag === "tbody" || tag === "table" || tag === "thead") {
+                  return getFrags("table", html, true);
+               }
+            }
             c.innerHTML = "" + html;
             children = c.childNodes;
             return slice.call(children);
@@ -280,12 +286,8 @@
         function getFrags(nodeName, html, isTable) {
             var frags;
             html += "";
-            if(!isIe) {
-                frags = fragments(html);
-            }else {
-                div.innerHTML = ["<", nodeName, ">", html, "</", nodeName, ">"].join("");
-                frags = isTable ? div.firstChild.firstChild.childNodes : div.firstChild.childNodes;
-            }
+            div.innerHTML = ["<", nodeName, ">", html, "</", nodeName, ">"].join("");
+            frags = isTable ? div.firstChild.firstChild.childNodes : div.firstChild.childNodes;
             return frags;
         }
 
@@ -348,7 +350,7 @@
         nodelist.isTypeOf = isTypeOf;
         nodelist.slice = slice;
         nodelist.extend = extend;
-        nodelist.getFragments = getFrags;
+        nodelist.getFragments = fragments;
         
         /**
          * Expose a extension API to extend 
@@ -359,7 +361,7 @@
             
             if(arg1Type === "String" && isFunction(extFunc)) {
                 if(h5Proto[name]) {
-                    console.log("Warning! Plugin " + name + " is already defined");
+                    console.log("Warning! Extension " + name + " is already defined");
                 }
                 h5Proto[name] = extFunc;
             }else if(arg1Type === "Object") {
@@ -392,7 +394,7 @@
 (function($) {
     var undef,
          gcs = window.getComputedStyle,
-         getFrags = $.getFragments,
+         fragments = $.getFragments,
          slice = $.slice,
          forEach = $.forEach,
          isTypeOf = $.isTypeOf,
@@ -461,7 +463,7 @@
          isTable = (nodeName === "table" || nodeName === "tbody"), cbElem, frags;
       
          if(htmType === "String" || htmType === "Number") {
-             frags = getFrags(nodeName, html, isTable);
+             frags = fragments(html);
          }else if(html.nodeName) { // dom node
              frags = [html];
          }else if(html.elements) { // h5 object
@@ -469,7 +471,7 @@
          }else if(isArray(html) || isNodeList(html)) { // array or nodelist
              frags = html;
          }else {
-             frags = getFrags(nodeName, html, isTable);
+             frags = fragments(html);
          }
          
          // if its table, pass in the tbody, else pass in the element
@@ -639,9 +641,13 @@
           * @memberOf nodelist
           */
          html: function(markup)  {
-             var elements = this.elements;
+             var elements = this.elements, ret;
              if(arguments.length === 0) {
-                 return elements.length === 0 ? null : elements[0].innerHTML;
+                 ret = [];
+                 forEach(elements, function(el) {
+                     ret[ret.length] = el.innerHTML;
+                 });
+                 return ret.join("");
              }
              markup = markup || "";
              forEach(elements, function(el) {

@@ -29,14 +29,14 @@
       </table>
         <script type="text/javascript">
 
-          $.plugin("sayHello", function() {});
+          $.extension("sayHello", function() {});
 
-          $.plugin("sayHello", function(options) {
+          $.extension("sayHello", function(options) {
              this.html(options || "Hello");
              return this;
           });
 
-          $.plugin({
+          $.extension({
              hide: function() {
                 this.get(0).style.display = "none";
                 return this;

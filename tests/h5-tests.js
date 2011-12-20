@@ -17,6 +17,9 @@ test("h5", function(){
    // $(html markup)
    equals($("<p>Hello <span>World</span></p><div>Hi</div>").count(), 2, "$('<markup>') test");
    
+   equals($("<tr><td>Hello World</td></tr><tr><td>Yello World</td></tr>").html().toLowerCase(), 
+      "<td>hello world</td><td>yello world</td>", "$('<markup>') test");
+   
    // $.get
    equals($("div", $("#qunit-fixture")).get(0).nodeName.toLowerCase(), "div", "$.get() test");
    
@@ -27,21 +30,18 @@ test("h5", function(){
    });
    equals(x, 15, "$.forEach() test");
    
-   x = $.filter([1,2,3,4,5], function(v) {
-       return v % 2 === 0;
-   });
+   x = $.filter([1,2,3,4,5], function(v) {return v % 2 === 0;});
    equals(x.join(","), "2,4", "$.filter() test");
-      
+   
 });
 
 
 test("dom", function() {
-
-   
    // $.html
    equals($("#innerHTML").html(), "innerHTML test", "$.html() test");
    
    equals($("#innerHTML").html("<span>Hello World</span>").html().toLowerCase(), "<span>hello world</span>", "$.html(somehtml) test");
+   
    
    // $.attr
    equals($(".attrTest").attr("class"), "attrTest", "$.attr(name) test");
@@ -56,7 +56,7 @@ test("dom", function() {
    // $.append
    equals($("#mytable").append("<tr id='foo'><td>Hello</td></tr>").find("#foo:first-child").html().toLowerCase(), "<td>hello</td>", "Table insertion test");
    
-   equals($("#mytable tr#foo").prepend("<tr id='boo'><td>Yello</td></tr>").find("#boo:first-child").html().toLowerCase(), "<td>yello</td>", "Table insertion test");
+   equals($("#mytable").prepend("<tr id='boo'><td>Yello</td></tr>").find("#boo:first-child").html().toLowerCase(), "<td>yello</td>", "Table insertion test");
    
    
    // $.val

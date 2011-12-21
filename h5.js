@@ -222,7 +222,7 @@
 
             containers = {
                 "*": div,
-                table: table,
+                // table: table,
                 tbody: table,
                 tfoot: table,
                 tr: tbody,
@@ -230,9 +230,11 @@
                 th: tr
             },
             
+            /**
+             * The prototype for all our objects returned by $(...) or h5(...)
+             */
             h5Proto;
 
-      
         function fragments(html, tgName) {
             var c, ret, children, tag;
             if(!tgName) {
@@ -267,7 +269,7 @@
                     }else if(selEngine) {
                         qr =  selEngine(s, c || doc);
                     }else {
-                        throw new Error("No selector engine found. Set custom engine via window.selectorEngine property");
+                        throw new Error("No selector engine found. Set custom engine via global selectorEngine property");
                     }
                     ret.e = slice.call(qr);
                     ret.s = s;
@@ -324,21 +326,55 @@
                 return elements.length === 0 ? nodelist(selector) : nodelist(selector, elements[0]);
             },
             
-            forEach: function(callback) {
-               forEach(this.elements, callback, this);
+            /**
+             * Calls the <tt>callback</tt> function for each element that is the part of this object
+             * The callback is called as callback(each-element, index, element-array). The value of
+             * this inside the callback function refers to the <tt>ctx</tt> argument or if not passed,
+             * the global object
+             * @param {Function} callback The callback function to call for each element
+             * @param {Object} ctx The optional objec that becomes "this" inside the callback
+             * @example
+             * // Adds css class 'foo' to all the elements that also have 'para' css class and sets 
+             * // their innerHTML to 'Bar'
+             * $(".para").forEach(function(elem, i) {
+             *   $(elem).addClass("foo").html("Bar");
+             * });
+             */
+            forEach: function(callback, ctx) {
+               forEach(this.elements.slice(0), callback, ctx || global);
                return this;
             },
             
-            filter: function(callback) {
-               return filter(this.elements, callback, this);
+            /**
+             * Calls the <tt>callback</tt> function for each element that is the part of this object
+             * and returns those objects as array for which the callback returns true.
+             * The callback is called as callback(each-element, index, element-array). The value of
+             * this inside the callback function refers to the <tt>ctx</tt> argument or if not passed,
+             * the global object
+             * @param {Function} callback The callback function to call for each element
+             * @param {Object} ctx The optional objec that becomes "this" inside the callback
+             * @example
+             * // Gets all the elements with 'para' css class and returns an array of only those
+             * // that have inner HTML as "Baz"
+             * $(".para").forEach(function(elem, i) {
+             *   return $(elem).html() === "Baz";
+             * });
+             */
+            filter: function(callback, ctx) {
+               return filter(this.elements.slice(0), callback, ctx || global);
             }
         };
-      
+        
+        /**
+         * This is the main entry point of h5. This can be called with a selector, h5 object,
+         * DOM object(s) or array of object/dom nodes
+         */
         function nodelist(sel, ctx) {
             ctx = ctx ? ctx.elements ? ctx.elements[0] : ctx : null;
             var elemSel = elAndSel(sel, ctx), h5 = createObject(h5Proto);
             h5.elements = elemSel.e;
             h5.selector = elemSel.s;
+            // h5.context = ctx;
             return h5;
         }
         

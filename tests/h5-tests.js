@@ -7,18 +7,37 @@ test("Basic", function() {
 });
 
 test("h5", function(){
-
+   var count = 0, arr;
+   
    equals($().count(), 0, "$()");
    equals($("").count(), 0, "$('')");
    //raises(function() {$("#");},  "$('#') Throws Syntax Error"); fails in IE6 becacuse of CssQuery
    equals($("span").selector, "span", "$(<selector>).selector === <selector>");
    equals($($("span")).selector, "span", "$($(<selector>)).selector === <selector>");
    
+   // context
+   ok($("#innerHTML", document.getElementById("qunit-fixture")), "$(selector, domcontext) test");
+   ok($("#innerHTML", $("#qunit-fixture")), "$(selector, $context) test");
+   
    // $(html markup)
    equals($("<p>Hello <span>World</span></p><div>Hi</div>").count(), 2, "$('<markup>') test");
-   
    equals($("<tr><td>Hello World</td></tr><tr><td>Yello World</td></tr>").html().toLowerCase(), 
       "<td>hello world</td><td>yello world</td>", "$('<markup>') test");
+   
+   //forEach
+   $("#baz>option").forEach(function(e, i) {
+      console.log("option: " + e);
+      count++;
+   });
+   equals(count, 3, "$(selector).forEach(func) test");
+   count = 0;
+   
+   // filter
+   arr = $("option").filter(function(e, i) {
+      return $(e).attr("value") === "a";
+   });
+   console.log(arr);
+   equals(arr.length, 2, "$(selector).filter(funct) test");
    
    // $.get
    equals($("div", $("#qunit-fixture")).get(0).nodeName.toLowerCase(), "div", "$.get() test");

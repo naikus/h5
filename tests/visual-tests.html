@@ -9,12 +9,24 @@
          </script>
       <![endif]-->
       <script src="../h5.js" type="text/javascript"></script>
+      <script src="../dom.js" type="text/javascript"></script>
+      <script src="../event.js" type="text/javascript"></script>
+      <!--[if LT IE 9]>
+        <script src="../event_ie.js" type="text/javascript"></script>
+      <![endif]-->
+      
+      
       <style type="text/css">
          #sho {
             background-color: #eee;
             height: 100px;
          }
       </style>
+      <script type="text/javascript">
+         $.ready(function() {
+            $("#append").dispatch("click", "Hello Dispatched");
+         });
+      </script>
    </head>
    <body>
       <div id="sho"></div>
@@ -48,21 +60,24 @@
           });
 
 
-          $("#hello").get(0).onclick = function() {
+          $("#hello").on("click",function(evt) {
              $("#sho").sayHello(", Naikus you are ").append(" Awesome!").prepend("Sweet ");
-          };
+          });
 
-          $("#hide").get(0).onclick = function() {
+          $("#hide").on("click", function foo(evt) {
              $("#sho").hide();
-          };
+             $("#hide").un("click", arguments.callee);
+          });
 
-          $("#show").get(0).onclick = function() {
-             $("#sho").show();
-          };
+          $("#show").on("click", function(e) {
+             $("#sho").html(e.data || "Hello").show();
+          });
 
-          $("#append").get(0).onclick = function() {
-             $("#mytable").append("<tr><td>Hello World</td></tr>");
-          };
+          $("#append").on("click", function(e) {
+             var str = e.data || "Hello World";
+             $("#mytable").append("<tr><td>" + str + "</td></tr>");
+             $("#show").dispatch("click", "Dispatched");
+          });
         </script>
    </body>
 </html>

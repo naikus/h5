@@ -6,14 +6,13 @@
    var slice = $.slice,
       forEach = $.forEach,
       map = $.map,
-      
+
       readyCalls = [],
       isTypeOf = $.isTypeOf,
       isReady = false,
       eventApi,
       eventStore,
       create = document.createEvent;
-      
       
    function addListener(elem, type, handler, capture) {
       if(elem.addEventListener) {
@@ -121,96 +120,77 @@
       readyCalls = null;
    }
    
-   (function init() {
-      var h, attachEvent = document.attachEvent;
-      if(document.addEventListener) {
-         h = function() {
-            document.removeEventListener("DOMContentLoaded", h, false);
-            callReady();
-         };
-         document.addEventListener("DOMContentLoaded", h, false);
-      }else if(attachEvent) {
-         ieContentLoaded(window, callReady);
-      }
-      
-      if(attachEvent && !document.removeEventListener) {
-         
-      }
-      
-   })();
-   
    eventStore = (function() {
       var handlers = {};
       
       function eid(elem) {
-         return elem.__h5evtId || (elem.__h5evtId = $.uuid());
-      }
+         return elem.__h5evtId || (elem.__h5evtId = "h5evt_" + $.uuid());
+      }    
       
-      function getStore(elem, type) {
-         var id = eid(elem), elemH = handlers[id] || (handlers[id] = {});
-         return elemH[type] || (elemH[type] = []);
-      }
-      
-      function findHandler(store, listener, capture) {
+      function findHandler(arrH, type, listener, capture) {
          var handler, i, len, h;
-         for(i = 0, len = store.length; i < len; i++) {
-            h = store[i];
-            if(h.listener === listener && h.capture === capture) {
+         for(i = 0, len = arrH.length; i < len; i++) {
+            h = arrH[i];
+            if(h.listener === listener && h.capture === capture && h.type === type) {
                handler = h;
                break;
             }
          }
          return handler;
-      }
+      } 
       
       return {
          createHandler: function(elem, type, listener, capture) {
-            var store = getStore(elem, type), handler = findHandler(store, listener), 
-                  extraArgs = slice.call(arguments, 4), hFunc;
-            // there is already a handler defined with same listener and same phase
+            var id = eid(elem), elemH = handlers[id] || (handlers[id] = []), 
+            handler = findHandler(elemH, type, listener, capture),
+            hArgs = slice.call(arguments, 4) || [],
+            hFunc;
+                    
             if(handler) {
                return null;
             }
-            
+             
             hFunc = function(e) {
-               extraArgs.unshift(e);
-               var ret = listener.apply(elem, extraArgs);
-               if(ret === false) {
+               hArgs.unshift(e);
+               if(listener.apply(elem, hArgs) === false) {
                   e.stopPropagation();
                   e.preventDefault();
                }
             };
-            
             hFunc.listener = listener;
+            hFunc.type = type;
             hFunc.capture = capture || false;
-            hFunc.element = elem;
-            
-            store.push(hFunc);
+            hFunc.elem = elem;
+             
+            elemH.push(hFunc);
             return hFunc;
          },
          
          deleteHandler: function(elem, type, listener, capture) {
-            var id = eid(elem), elemH = handlers[id], i, len, h, handler, store;
+            var id = eid(elem), elemH = handlers[id], i, len, h, handler;
             if(!elemH) {
                return null;
             }
-            store = elemH[type];
             capture = capture || false;
-            for(i = 0, len = store.length; i < len; i++) {
-               h = store[i];
-               if(h.listener === listener && h.capture === capture) {
+            for(i = 0, len = elemH.length; i < len; i++) {
+               h = elemH[i];
+               if(h.listener === listener && h.capture === capture && h.type === type) {
                   handler = h;
                   break;
                }
             }
             if(i < len) {
-               store.splice(i, 1);
+               elemH.splice(i, 1);
             }
-            return handler
+            return handler;
          },
          
-         getAllHandlers: function(type, elem) {
-            
+         getAllHandlers: function() {
+            var allH = [];
+            forEach(handlers, function(arrH, eId) {
+               allH = allH.concat(arrH);
+            });
+            return allH;
          }
       };
    })();
@@ -258,6 +238,27 @@
       }
    };
    
+   (function init() {
+      var h, attachEvent = document.attachEvent;
+      if(document.addEventListener) {
+         h = function() {
+            document.removeEventListener("DOMContentLoaded", h, false);
+            callReady();
+         };
+         document.addEventListener("DOMContentLoaded", h, false);
+      }else if(attachEvent) {
+         ieContentLoaded(window, callReady);
+      }
+      
+      if(attachEvent && !document.removeEventListener) {
+         window.attachEvent("onunload", function() {
+            forEach(eventStore.getAllHandlers(), function(h) {
+               $(h.elem).un(h.type, h.listener, h.capture);
+            });
+         });
+      }
+   })();
+   
    $.ready = function(callback) {
       if(isReady) {
          callback.call(window);         
@@ -267,4 +268,4 @@
    };
    
    $.extension(eventApi);
- })(h5);
+})(h5);

@@ -212,6 +212,7 @@
                }
            }
         });
+        return ret;
     }
 
     
@@ -395,6 +396,7 @@
         nodelist.extend = extend;
         nodelist.getFragments = fragments;
         nodelist.uuid = uuid;
+        nodelist.createObject = createObject;
         
         /**
          * Expose a extension API to extend 

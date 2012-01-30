@@ -34,7 +34,7 @@
       <input type="button" id="hide" value="Hide" />
       <input type="button" id="show" value="Show" />
       <input type="button" id="append" value="Append" />
-      
+
       
       <table id="mytable">
          
@@ -59,7 +59,6 @@
              }
           });
 
-
           $("#hello").on("click",function(evt) {
              $("#sho").sayHello(", Naikus you are ").append(" Awesome!").prepend("Sweet ");
           });
@@ -78,6 +77,8 @@
              $("#mytable").append("<tr><td>" + str + "</td></tr>");
              $("#show").dispatch("click", "Dispatched");
           });
+          
+          
         </script>
    </body>
 </html>

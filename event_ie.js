@@ -13,7 +13,10 @@
       eventApi,
       eventStore,
       create = document.createEvent;
-      
+   
+   /**
+    * Wrapper for addEventListener and attachEvent
+    */
    function addListener(elem, type, handler, capture) {
       if(elem.addEventListener) {
          elem.addEventListener(type, handler, capture || false);
@@ -22,6 +25,9 @@
       }
    }
 
+   /**
+    * Wrapper for removeEventListener and detachEvent
+    */
    function removeListener(elem, type, handler, capture) {
       if(elem.removeEventListener) {
          elem.removeEventListener(type, handler, capture || false)
@@ -30,6 +36,61 @@
       }
    }
    
+   /**
+    * Fix the event to normalize accross browsers, espeically IE
+    * http://www.quirksmode.org/js/events_properties.html was a great source of info
+    */
+   function fixEvent(evt, elem) {
+      var e = evt || window.event, t = e.target, doc, body;
+      if(!e.preventDefault) {
+         e.preventDefault = function() {
+            e.returnValue = false;
+         };
+      }
+      if(!e.stopPropagation) {
+         e.stopPropagation = function() {
+            e.cancelBubble = true;
+         };
+      }
+      
+      if(t === "undefined") {
+         t = e.target = e.srcElement || elem;
+      }
+      
+      // bug in safari?
+      if(t.nodeType === 3 ) {
+         e.target = e.target.parentNode;
+      }
+      
+      if(!e.relatedTarget && e.fromElement) {
+         e.relatedTarget = e.fromElement === e.target ? e.toElement : e.fromElement;
+      }
+      
+      // fix buttons
+      if(!e.buttons) {
+         e.buttons = e.button;
+      }
+      
+      // positioning
+      if(!e.pageX || !e.pageY) {
+         if(e.clientX || e.clientY) {
+            doc = e.target.ownerDocument || document;
+            body = document.body;
+            e.pageX = e.clientX + body.scrollLeft;
+            e.pageY = e.clientY + body.scrollTop;
+         }
+      }
+   }
+   
+   /**
+    * Creates and initializes an event.
+    * @param {String} type The type of the event e.g. mouseout, click, etc.
+    * @param {Object} props The properties for the event. This can be an object that sets other properties
+    * for this event or any string or any other object. If the props is an object, its properties are
+    * assigned to the event object. If its a String or any other object, props is assigned to event.data
+    * property.
+    * @return the newly created and initialized (initEvent) event.    
+    */
    function createEvent(type, props) {
       var evt, data = props || {},
          prop,
@@ -151,6 +212,7 @@
             }
              
             hFunc = function(e) {
+               fixEvent(e, elem);
                hArgs.unshift(e);
                if(listener.apply(elem, hArgs) === false) {
                   e.stopPropagation();
@@ -196,6 +258,15 @@
    })();
       
    eventApi = {
+      /**
+       * Adds an event listener, <tt>callback</tt> for the specified event on the current set of 
+       * element(s). The capturing is set to false
+       * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
+       * @param {Function} callback The callback function that will be called when the event is fired
+       * on the current set of elements
+       * @param {Object} data The extra information to be passed to callback when its called
+       * @see $.capture(type, callback, data)
+       */
       on: function(type, callback, data) {
          var evt = parse(type), domEvt = evt.type;
          forEach(this.elements, function(elem) {
@@ -206,6 +277,13 @@
          }); 
       },
       
+      /**
+       * Removes the specified event listener from the current set to elements if they were previously
+       * registered.
+       * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
+       * @param {Function} callback The callback function that was added previously
+       * @param {boolean} capture Whether the callback was registered for capturing or bubbling phase
+       */
       un: function(type, callback, capture) {
          var evt = parse(type), domEvt = evt.type;
          forEach(this.elements, function(elem) {
@@ -215,7 +293,16 @@
             }
          });
       },
-      
+
+      /**
+       * Adds an event listener, <tt>callback</tt> for the specified event on the current set of 
+       * element(s). The capturing is set to true
+       * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
+       * @param {Function} callback The callback function that will be called when the event is fired
+       * on the current set of elements
+       * @param {Object} data The extra information to be passed to callback when its called
+       * @see $.on(type, callback, data)
+       */
       capture: function(type, callback, data) {
          var evt = parse(type), domEvt = evt.type;
          forEach(this.elements, function(elem) {
@@ -226,6 +313,12 @@
          }); 
       },
       
+      /**
+       * Dispatches the specified event on the current selected element(s)
+       * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
+       * @param {Object} data The event data such as "button", "relatedTarget", etc for the event. If 
+       * the data argument is not an object, its set into the property data.event
+       */
       dispatch: function(type, data) {
          return map(this.elements, function(elem) {
             var evt = createEvent(type, data);

@@ -119,12 +119,18 @@
       return evt;      
    }
    
+   /**
+    * Parses the event into an event and optional namespace
+    * @param {String} evtType The event type string. This can be of the form 'click.mywidget'
+    * @return {Object} An object with two properties type and ns. e.g. 'click.mywidget.foo' will be
+    * parsed as {type: 'click', ns: 'mywidget.foo'}
+    */
    function parse(evtType) {
       var arr = evtType.split(".");
       return {
          type: arr[0],
          ns: arr.slice(1).join(".")
-      }
+      };
    }
    
    /**
@@ -181,6 +187,10 @@
       readyCalls = null;
    }
    
+   /**
+    * Event store provides API for creating, retrieving, deleting and storing
+    * handler proxies.
+    */
    eventStore = (function() {
       var handlers = {};
       
@@ -201,6 +211,15 @@
       } 
       
       return {
+         /**
+          * Creates a proxy handler for specified properties.
+          * If the handler already exists, null is returned
+          * @param elem {Node} The DOM element
+          * @param type {String} The type of event e.g. 'click', 'mouseover.foo', etc.
+          * @param listener {Function} The actual listener that will be call when the event is fired
+          * @param capture {boolean} Whether to add during capturing or bubbling phase. false for bubbling
+          * @return {Function} A newly created handler or null if one already exists for the same arguments
+          */
          createHandler: function(elem, type, listener, capture) {
             var id = eid(elem), elemH = handlers[id] || (handlers[id] = []), 
             handler = findHandler(elemH, type, listener, capture),
@@ -227,7 +246,15 @@
             elemH.push(hFunc);
             return hFunc;
          },
-         
+
+         /**
+          * Deletes a proxy handler for specified properties.
+          * @param elem {Node} The DOM element
+          * @param type {String} The type of event e.g. 'click', 'mouseover.foo', etc.
+          * @param listener {Function} The actual listener that was used to register for the event
+          * @param capture {boolean} Whether this was added for capturing or bubbling phase. false for bubbling
+          * @return {Function} The deleted handler or null
+          */
          deleteHandler: function(elem, type, listener, capture) {
             var id = eid(elem), elemH = handlers[id], i, len, h, handler;
             if(!elemH) {
@@ -247,6 +274,11 @@
             return handler;
          },
          
+         /**
+          * Gets all the proxy handlers with this store
+          * @return {Array} An array of all the proxy handlers in this store or an empty array if
+          * none were stored.
+          */
          getAllHandlers: function() {
             var allH = [];
             forEach(handlers, function(arrH, eId) {
@@ -256,7 +288,8 @@
          }
       };
    })();
-      
+   
+   
    eventApi = {
       /**
        * Adds an event listener, <tt>callback</tt> for the specified event on the current set of 
@@ -352,6 +385,11 @@
       }
    })();
    
+   /**
+    * The DOM ready function, This will be called as soon as possible when the DOM content of the
+    * document is available.
+    * @param callback {Function} The callback function to call as when DOM is ready.
+    */
    $.ready = function(callback) {
       if(isReady) {
          callback.call(window);         

@@ -12,20 +12,21 @@
       isReady = false,
       eventApi;
       
-   $.ready = function(callback) {
-      if(isReady) {
-         callback.call(window);         
-      }else {
-         readyCalls.push(callback);
-      }
-   };
-      
+   /**
+    * Creates and initializes an event.
+    * @param {String} type The type of the event e.g. mouseout, click, etc.
+    * @param {Object} props The properties for the event. This can be an object that sets other properties
+    * for this event or any string or any other object. If the props is an object, its properties are
+    * assigned to the event object. If its a String or any other object, props is assigned to event.data
+    * property.
+    * @return the newly created and initialized (initEvent) event.    
+    */
    function createEvent(type, props) {
       var evt, data = props || {},
          prop,
          bubbles = data.bubbles === false ? false : true,
          cancelable = data.cancelable === false ? false : true;   
-      evt = document.createEvent("Events");
+         evt = document.createEvent("Events");
 
       if(isTypeOf(props, "Object")) {
          for(prop in data) {
@@ -40,49 +41,6 @@
       return evt;      
    }
    
-   /**
-    *
-    * IEContentLoaded.js
-    *
-    * Author: Diego Perini (diego.perini@gmail.com) NWBOX S.r.l.
-    * Summary: DOMContentLoaded emulation for IE browsers
-    * Updated: 05/10/2007
-    * License: GPL/CC
-    * Version: TBD
-    * 
-    * @param {Window} w The wndow object
-    * @param {Function} fn the callback function
-    */
-   function ieContentLoaded (w, fn) {
-      var d = w.document, done = false,
-      // only fire once
-      init = function () {
-         if (!done) {
-            done = true;
-            fn();
-         }
-      };
-      // polling for no errors
-      (function poll() {
-         try {
-            // throws errors until after ondocumentready
-            d.documentElement.doScroll('left');
-         } catch (e) {
-            setTimeout(poll, 50);
-            return;
-         }
-         // no errors, fire
-         init();
-      })();
-      // trying to always fire before onload
-      d.onreadystatechange = function() {
-         if (d.readyState === 'complete') {
-            d.onreadystatechange = null;
-            init();
-         }
-      };
-   }
-   
    function callReady() {
       if(isReady) {
          return;
@@ -95,37 +53,63 @@
    }
    
    (function init() {
-      var h, attachEvent = document.attachEvent;
-      if(document.addEventListener) {
-         h = function() {
+      var h = function() {
             document.removeEventListener("DOMContentLoaded", h, false);
             callReady();
-         };
-         document.addEventListener("DOMContentLoaded", h, false);
-      }else if(attachEvent) {
-         ieContentLoaded(window, callReady);
-      }
+      };
+      document.addEventListener("DOMContentLoaded", h, false);
    })();
       
    eventApi = {
+      /**
+       * Adds an event listener, <tt>callback</tt> for the specified event on the current set of 
+       * element(s). The capturing is set to false
+       * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
+       * @param {Function} callback The callback function that will be called when the event is fired
+       * on the current set of elements
+       * @param {Object} data The extra information to be passed to callback when its called
+       * @see $.capture(type, callback, data)
+       */
       on: function(type, callback) {
          forEach(this.elements, function(elem) {
             elem.addEventListener(type, callback, false);
          });
       },
       
+      /**
+       * Removes the specified event listener from the current set to elements if they were previously
+       * registered.
+       * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
+       * @param {Function} callback The callback function that was added previously
+       * @param {boolean} capture Whether the callback was registered for capturing or bubbling phase
+       */
       un: function(type, callback, capture) {
          forEach(this.elements, function(elem) {
             elem.removeEventListener(type, callback, capture || false);
          });
       },
       
+      /**
+       * Adds an event listener, <tt>callback</tt> for the specified event on the current set of 
+       * element(s). The capturing is set to true
+       * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
+       * @param {Function} callback The callback function that will be called when the event is fired
+       * on the current set of elements
+       * @param {Object} data The extra information to be passed to callback when its called
+       * @see $.on(type, callback, data)
+       */
       capture: function(type, callback) {
          forEach(this.elements, function(elem) {
             elem.addEventListener(type, callback, true);
          });
       },
       
+      /**
+       * Dispatches the specified event on the current selected element(s)
+       * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
+       * @param {Object} data The event data such as "button", "relatedTarget", etc for the event. If 
+       * the data argument is not an object, its set into the property data.event
+       */
       dispatch: function(type, data) {
          return map(this.elements, function(elem) {
             var evt = createEvent(type, data);
@@ -133,5 +117,19 @@
          });
       }
    };
+   
+   /**
+    * The DOM ready function, This will be called as soon as possible when the DOM content of the
+    * document is available.
+    * @param callback {Function} The callback function to call as when DOM is ready.
+    */
+   $.ready = function(callback) {
+      if(isReady) {
+         callback.call(window);         
+      }else {
+         readyCalls.push(callback);
+      }
+   };
+   
    $.extension(eventApi);
  })(h5);

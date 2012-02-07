@@ -57,7 +57,9 @@
             document.removeEventListener("DOMContentLoaded", h, false);
             callReady();
       };
-      document.addEventListener("DOMContentLoaded", h, false);
+      if(document.addEventListener) {
+         document.addEventListener("DOMContentLoaded", h, false);
+      }
    })();
       
    eventApi = {

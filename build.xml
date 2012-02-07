@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project basedir="." default="build"> 
+  <target name="combine">
+    <!-- Order is important here -->
+    <concat destfile="h5.js">
+      <filelist dir="src">
+        <file name="h5.js"/>
+        <file name="event.js"/>
+        <file name="dom.js"/>
+      </filelist>
+    </concat>
+  </target>
+
+  <target name="combine-legacy">
+    <!-- Order is important here -->  
+    <concat destfile="h5.js">
+      <filelist dir="src">
+        <file name="h5.js"/>
+        <file name="event_ie.js"/>
+        <file name="dom.js"/>
+      </filelist>
+    </concat>
+  </target>
+
+  <target name="build-legacy" depends="clean,combine-legacy">
+    <antcall target="minify" />
+  </target>
+  
+  <target name="build" depends="clean,combine">
+    <antcall target="minify" />
+  </target>
+
+  <target name="minify" if="minify">
+    <java jar="build-tools/yuicompressor-2.4.7.jar" fork="true">
+        <arg line="-o h5.min.js --preserve-semi h5.js"/>
+    </java>
+    <delete file="h5.js" />
+  </target>
+
+  <target name="clean">
+    <delete file="h5.js" />
+    <delete file="h5.min.js" />
+  </target>
+</project>

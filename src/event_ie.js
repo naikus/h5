@@ -53,7 +53,7 @@
          };
       }
       
-      if(t === "undefined") {
+      if(!t) {
          t = e.target = e.srcElement || elem;
       }
       

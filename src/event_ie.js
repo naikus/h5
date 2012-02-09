@@ -1,3 +1,21 @@
+/*jslint
+    nomen: false,
+    debug: true,
+    indent: 3,
+    plusplus: false,
+    evil: true, 
+    onevar: true,
+    browser: true,
+    white: false
+*/
+/*global
+    window: true,
+    h5: true,
+    navigator: true,
+    XMLHttpRequest: true,
+    ActiveXObject: true,
+    unescape: true
+*/
 /**
  * The event module. Provides methods to add, remove, delegate and fire events and othe convenicence
  * methods
@@ -30,7 +48,7 @@
     */
    function removeListener(elem, type, handler, capture) {
       if(elem.removeEventListener) {
-         elem.removeEventListener(type, handler, capture || false)
+         elem.removeEventListener(type, handler, capture || false);
       }else if(elem.detachEvent) {
          elem.detachEvent("on" + type, handler);
       }

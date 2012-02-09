@@ -89,6 +89,15 @@
     function isTypeOf(that, type) {
         return objToString.call(that).slice(8, -1) === type;
     }
+    
+    function hasOwn(obj, prop) {
+       if(obj.hasOwnProperty) {
+          return obj.hasOwnProperty(prop);
+       }else {
+          var val = obj[prop];
+          return typeof val !== "undefined" && obj.constructor.prototype[prop] !== val
+       }
+    }
    
     function isFunction(that) {
         return objToString.call(that) === "[object Function]";
@@ -128,19 +137,6 @@
             slice = sliceList;
         }
     })();
-   
-    /**
-     * Extends the target object from multiple sources
-     */
-    function extend(/*target, source0, souce1, souce2, ... */) {
-        var sources = slice.call(arguments, 1);
-        forEach(sources, function(src) {
-            for(var k in src) {
-                target[k] = src[k];
-            }
-        });
-    }
-   
    
     /* ---------------------------- iteration functions ------------------------------------------ */
    
@@ -213,6 +209,19 @@
            }
         });
         return ret;
+    }
+    
+    
+    /**
+     * Extends the target object from multiple sources
+     */
+    function extend(/*target, source0, souce1, souce2, ... */) {
+        var target = arguments(0), sources = slice.call(arguments, 1);
+        forEach(sources, function(src) {
+            for(var k in src) {
+                target[k] = src[k];
+            }
+        });
     }
 
     
@@ -390,6 +399,7 @@
         nodelist.forEach = forEach;
         nodelist.filter = filter;
         nodelist.map  = map;
+        nodelist.isArray = isArray;
         nodelist.getTypeOf = getTypeOf;
         nodelist.isTypeOf = isTypeOf;
         nodelist.slice = slice;

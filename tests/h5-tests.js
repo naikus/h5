@@ -59,7 +59,7 @@ test("dom", function() {
    // $.html
    equals($("#innerHTML").html(), "innerHTML test", "$.html() test");
    
-   equals($("#innerHTML").html("<span>Hello World</span>").html().toLowerCase(), "<span>hello world</span>", "$.html(somehtml) test");
+   equals($("#innerHTML").html("<span>Hello World</span><p>hey</p>").html().toLowerCase(), "<span>hello world</span><p>hey</p>", "$.html(somehtml) test");
    
    
    // $.attr
@@ -69,14 +69,11 @@ test("dom", function() {
    equals($("#foo").attr("value", "voo").val(), "voo", "$.attr(name, value) input value test");
    equals($("#foo").attr("value"), "voo", "$.attr(name, value) input value test");
    
-   // $.data
-   equals($("#innerHTML").data("test", "testvalue").data("test"), "testvalue", "$.data(name, value) test");
-   
    // $.append
    equals($("#mytable").append("<tr id='foo'><td>Hello</td></tr>").find("#foo:first-child").html().toLowerCase(), "<td>hello</td>", "Table insertion test");
    
+   // $.prepend
    equals($("#mytable").prepend("<tr id='boo'><td>Yello</td></tr>").find("#boo:first-child").html().toLowerCase(), "<td>yello</td>", "Table insertion test");
-   
    
    // $.val
    equals($("#foo").val("foo").val(), "foo", "$.val() test");
@@ -91,4 +88,23 @@ test("dom", function() {
    equals($("#bazz").val().join(" "), "a b c", "$.val multiple select test");
    equals($("#bazz").val("c").val(), "c", "$.val multiple select test");
    equals($("#bazz").val(["b", "c"]).val().join(" "), "b c", "$.val multiple select set multiple values");
+   
+   // $.remove
+   $("#innerHTML").html("Hell<span>o World</span>, Yeah");
+   equals($("#innerHTML").remove("span").html(), "Hell, Yeah", "$(selector).remove() test");
+   
+   // $.hasClass
+   equals($(".clsTest").hasClass("clsTest"), true, "$(sel).hasClass(val) test");
+   
+   // $.addClass
+   equals($(".clsTest").addClass("bar").hasClass("bar"), true, "$(sel).addClass(val) test");
+   
+   // $.addClass
+   equals($(".clsTest").removeClass("bar").hasClass("bar"), false, "$(sel).removeClass(val) test");
+   
+   // $.data
+   equals($("#innerHTML").data("test", "testvalue").data("test"), "testvalue", "$.data(name, value) test");
+   
+   
+
 });

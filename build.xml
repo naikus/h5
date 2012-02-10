@@ -30,11 +30,10 @@
     <antcall target="minify" />
   </target>
 
-  <target name="minify" if="minify">
+  <target name="minify">
     <java jar="build-tools/yuicompressor-2.4.7.jar" fork="true">
         <arg line="-o h5.min.js --preserve-semi h5.js"/>
     </java>
-    <delete file="h5.js" />
   </target>
 
   <target name="clean">

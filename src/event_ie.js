@@ -326,6 +326,7 @@
                addListener(elem, domEvt, h, false);
             }
          }); 
+         return this;
       },
       
       /**
@@ -343,6 +344,7 @@
                removeListener(elem, domEvt, h, capture);
             }
          });
+         return this;
       },
 
       /**
@@ -361,7 +363,8 @@
             if(h) {
                addListener(elem, domEvt, h, true);
             }
-         }); 
+         });
+         return this;
       },
       
       /**
@@ -374,13 +377,22 @@
          return map(this.elements, function(elem) {
             var evt = createEvent(type, data);
             if(elem.dispatchEvent) {
-               elem.dispatchEvent(evt);
+               return elem.dispatchEvent(evt);
             }else if(elem.fireEvent) {
-               elem.fireEvent("on" + type, evt);
+               return elem.fireEvent("on" + type, evt);
             }
          });
       }
    };
+   
+   /*
+   forEach(["mouseover", "mousedown", "mouseup", "click", "dblclick", "mouseout", "keydown", 
+         "keyup", "keypress", "focus", "blur", "focusin", "focusout"], function(e) {
+      eventApi[e] = function(callback, capture) {
+         return capture === true ? this.capture(e, callback) : this.on(e, callback);
+      };
+   });
+   */
    
    (function init() {
       var h, attachEvent = document.attachEvent;

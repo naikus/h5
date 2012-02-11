@@ -94,6 +94,7 @@
          forEach(this.elements, function(elem) {
             elem.addEventListener(type, callback, false);
          });
+         return this;
       },
       
       /**
@@ -107,6 +108,7 @@
          forEach(this.elements, function(elem) {
             elem.removeEventListener(type, callback, capture || false);
          });
+         return this;
       },
       
       /**
@@ -122,6 +124,7 @@
          forEach(this.elements, function(elem) {
             elem.addEventListener(type, callback, true);
          });
+         return this;
       },
       
       /**
@@ -133,10 +136,19 @@
       dispatch: function(type, data) {
          return map(this.elements, function(elem) {
             var evt = createEvent(type, data);
-            elem.dispatchEvent(evt);
+            return elem.dispatchEvent(evt);
          });
       }
    };
+   
+   /*
+   forEach(["mouseover", "mousedown", "mouseup", "click", "dblclick", "mouseout", "keydown", 
+         "keyup", "keypress", "focus", "blur", "focusin", "focusout"], function(e) {
+      eventApi[e] = function(callback, capture) {
+         return capture === true ? this.capture(e, callback) : this.on(e, callback);
+      };
+   });
+   */
    
    /**
     * The DOM ready function, This will be called as soon as possible when the DOM content of the

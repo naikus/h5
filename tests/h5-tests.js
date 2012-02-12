@@ -129,8 +129,7 @@ var AllTests = (function() {
          
          test("$(sel).remove() test", function() {
             $("#innerHTML").html("Hell<span>o World</span>, Yeah");
-            equals($("#innerHTML").remove("span").html(), "Hell, Yeah", 
-               "$(selector).remove(selector) test");
+            equals($("#innerHTML").remove("span").html(), "Hell, Yeah", "$(selector).remove(selector) test");
          });
          
          test("Css class name tests", function() {

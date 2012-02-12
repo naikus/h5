@@ -444,16 +444,24 @@
        * // will result in
        * &lt;p id="bar" class="foo baz"&gt;Hello world&lt;/p&gt;
        */
-      remove: function(selector)  {
-         var elems, elem, c, elements = this.elements;
-         if(elements.length === 0)  {
-            return this;
+      remove: function(/* sel */) {
+         var sel, elems = this.elements;
+         if(arguments.length === 0) {
+            forEach(elems, function(e) {
+               var p = e.parentNode;
+               p.removeChild(e);
+            });
+            this.elements = [];
+         }else if(elems.length > 0) {
+            sel = arguments[0];
+            forEach(elems, function(e) {
+               var rElems = $(sel, e);
+               forEach(rElems, function(re) {
+                  var n = re.parentNode;
+                  return n ? n.removeChild(re) : null;
+               });
+            });
          }
-         c = elements[0];
-         elems = $(selector, c).elements;
-         forEach(elems, function(elem) {
-            c.removeChild(elem);
-         });
          return this;
       },
          

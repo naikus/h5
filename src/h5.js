@@ -131,7 +131,7 @@
    // normalize the slice function
    (function() {
       try {
-         slice.call(document.getElementsByTagName("html")); // this fails below IE9
+         slice.call(doc.getElementsByTagName("html")); // this fails below IE9
       }catch(err) {
          console.log("Array slice does not work on array-like objects, using custom slice");
          slice = sliceList;
@@ -229,12 +229,12 @@
    h5 = (function() {
       var htmlRe = /^\s*<(\w+)[^>]*>/,
       isIe = !!window.ActiveXObject,
-      table = document.createElement("table"),
-      tbody = document.createElement("tbody"),
-      tr = document.createElement("tr"),
-      div = document.createElement("div"),
+      table = doc.createElement("table"),
+      tbody = doc.createElement("tbody"),
+      tr = doc.createElement("tr"),
+      div = doc.createElement("div"),
 
-      hasqsa = !! document.querySelectorAll,
+      hasqsa = !! doc.querySelectorAll,
       selEngine = global.selectorEngine,
 
       containers = {
@@ -282,9 +282,9 @@
                ret.e = fragments(s, execRes[1]);
             }else {
                if(hasqsa) {
-                  qr = (c || doc).querySelectorAll(s);
+                  qr = c.querySelectorAll(s);
                }else if(selEngine) {
-                  qr =  selEngine(s, c || doc);
+                  qr =  selEngine(s, c);
                }else {
                   throw new Error("No selector engine found. Set custom engine via global selectorEngine property");
                }
@@ -387,11 +387,11 @@
        * DOM object(s) or array of object/dom nodes
        */
       function nodelist(sel, ctx) {
-         ctx = ctx ? ctx.elements ? ctx.elements[0] : ctx : null;
+         ctx = ctx ? ctx.elements ? ctx.elements[0] : ctx : doc;
          var elemSel = elAndSel(sel, ctx), h5 = createObject(h5Proto);
          h5.elements = elemSel.e;
          h5.selector = elemSel.s;
-         // h5.context = ctx;
+         h5.context = ctx;
          return h5;
       }
         

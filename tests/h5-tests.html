@@ -19,6 +19,11 @@
             
          } */
       </style>
+      <script type="text/javascript">
+         $.ready(function() {
+            AllTests.run();
+         });
+      </script>
    </head>
    <body>
       <h1 id="qunit-header">h5.js test suite</h1>
@@ -26,24 +31,28 @@
       <div id="qunit-testrunner-toolbar"></div>
       <h2 id="qunit-userAgent"></h2>
       <ol id="qunit-tests"></ol>
+
       
-      <!-- div id="qunit-fixture">
-         <div></div>
-      </div -->
       
-      <div id="qunit-fixture">
+      <div id="qunit-fixture">         
+         <div class="innerHTML" id="innerHTML">innerHTML test</div>
          
-         <div id="innerHTML">innerHTML test</div>
-         <div class="attrTest">Attr test</div>
-         <div class="clsTest">Class test</div>
-         <input id="foo" type="text" value="foo" />
-         <textarea id="bar">Hello Bar</textarea>
+         <select id="forEach" multiple="multiple">
+            <option value="a">a</option>
+            <option value="b" selected="selected">b</option>
+            <option value="c">c</option>
+         </select>
          
          <select id="baz" multiple="multiple">
             <option value="a">a</option>
             <option value="b" selected="selected">b</option>
             <option value="c">c</option>
          </select>
+         
+         <div class="attrTest">Attr test</div>
+         <div class="clsTest">Class test</div>
+         <input id="foo" type="text" value="foo" />
+         <textarea id="bar">Hello Bar</textarea>
          
          <select id="bazz" multiple="multiple">
             <option value="a" selected="selected">a</option>

@@ -43,6 +43,10 @@
       <table id="mytable">
          
       </table>
+      
+      <input type="button" id="jsonp" value="JsonP Request" />
+      <textarea id="jsonpdata">
+      </textarea>
         <script type="text/javascript">
 
           $.extension("sayHello", function() {});
@@ -84,6 +88,13 @@
           
           $("#remove").on("click", function() {
               $("#mytable").remove('.rem');
+          });
+          
+          $("#jsonp").on("click", function() {
+             // http://www.reddit.com/.json?limit=1&callback=?
+             $.jsonp("http://www.reddit.com/.json?limit=1&jsonp=?", function(data) {
+                $("#jsonpdata").html(JSON.stringify(data, null, " "));
+             });
           });
           
           

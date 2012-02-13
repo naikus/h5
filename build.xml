@@ -7,6 +7,7 @@
         <file name="h5.js"/>
         <file name="event.js"/>
         <file name="dom.js"/>
+        <file name="xhr.js"/>
       </filelist>
     </concat>
   </target>
@@ -18,6 +19,7 @@
         <file name="h5.js"/>
         <file name="event_ie.js"/>
         <file name="dom.js"/>
+        <file name="xhr.js"/>
       </filelist>
     </concat>
   </target>

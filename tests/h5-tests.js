@@ -99,7 +99,25 @@ var AllTests = (function() {
                "$(sel).attr('class') classname test");
             equals($("#foo").attr("value", "voo").val(), "voo", 
                "$(sel).attr('value', val).val() === val, input value test");
+            
             equals($("#foo").attr("value"), "voo", "$(sel).attr('name') input val test");
+            
+            $("#foo").attr({
+                  name: "thefoo",
+                  size: 30,
+                  maxlength: 5,
+                  style: "background-color: blue",
+                  "class": "moi-class",
+                  value: "yay! object attributes"
+            });
+            equals($("#foo").attr("name"), "thefoo");
+            equals($("#foo").attr("size"), "30");
+            equals($("#foo").attr("maxlength"), "5");
+            equals($("#foo").attr("style"), "background-color: blue");
+            equals($("#foo").val(), "yay! object attributes");
+            equals($("#foo").hasClass("moi-class"), true);
+            
+            
          });
          
          test("$(sel).append() test", function() {

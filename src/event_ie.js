@@ -241,7 +241,7 @@
          createHandler: function(elem, type, listener, capture) {
             var id = eid(elem), elemH = handlers[id] || (handlers[id] = []), 
             handler = findHandler(elemH, type, listener, capture),
-            hArgs = slice.call(arguments, 4) || [],
+            hArgs = slice(arguments, 4) || [],
             hFunc;
                     
             if(handler) {

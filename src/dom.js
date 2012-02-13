@@ -106,7 +106,7 @@
          
       // if its table, pass in the tbody, else pass in the element
       cbElem = isTable ? (element.getElementsByTagName("tbody")[0] || element) : element;      
-      callback(cbElem, slice.call(frags));
+      callback(cbElem, slice(frags));
    }
    
    function append(elem, html) {
@@ -244,6 +244,17 @@
          style[key] = val;
       });
    }
+   
+   function setAttributes(elem, attrs) {
+      forEach(attrs, function(val, key) {
+         var n = key === "class" ? "className" : key;
+         if(n === "className" || n === "value") {
+            elem[n] = val; // @TODO: should this be $(elem).val(val) in case of n === "value"?
+         }else {
+            elem.setAttribute(key, val);
+         }
+      });
+   }
      
    $.extension({
       /**
@@ -291,17 +302,24 @@
        * @memberOf nodelist
        */
       attr: function(name, value)   {
-         var n = name === "class" ? "className" : name, elem, elements = this.elements, ret;
-
+         var n = name === "class" ? "className" : name, elements = this.elements, ret, 
+            ntype = typeof name;
          if(elements.length === 0)  {
             return value ? this : null;
          }
-         elem = elements[0];
+
          if(arguments.length === 1) {
-            if(name === "value" || name === "class") {
-               return elem[n];
+            if(ntype === "string") {
+               if(name === "value" || name === "class") {
+                  return elements[0][n];
+               }
+               return elements[0].getAttribute(name);
+            }else {
+               forEach(elements, function(e) {
+                  setAttributes(e, n);
+               });
+               return this;
             }
-            return elem.getAttribute(name);
          }else {
             if(name === "value" || name === "class") {
                forEach(elements, function(e) {

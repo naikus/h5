@@ -402,7 +402,9 @@
       nodelist.isArray = isArray;
       nodelist.getTypeOf = getTypeOf;
       nodelist.isTypeOf = isTypeOf;
-      nodelist.slice = slice;
+      nodelist.slice = function(arrayLike, start, end) {
+         return slice.call(arrayLike, start, end);
+      }
       nodelist.extend = extend;
       nodelist.getFragments = fragments;
       nodelist.uuid = uuid;

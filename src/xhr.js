@@ -1,35 +1,23 @@
-/*jslint
-    nomen: false,
-    debug: true,
-    indent: 3,
-    plusplus: false,
-    evil: true, 
-    onevar: true,
-    browser: true,
-    white: false
-*/
-/*global
-    window: true,
-    h5: true,
-    navigator: true,
-    XMLHttpRequest: true,
-    ActiveXObject: true,
-    unescape: true
-*/
 (function($) {
-   var jpId = 0,
-      forEach = $.forEach,
+   var forEach = $.forEach,
+      isTypeOf = $.isTypeOf,
+      getTypeOf = $.getTypeOf,
+      slice = $.slice,
       noop = function() {},
       extend = $.extend,
       xmlhttp = window.XMLHttpRequest,
-      activeX = window.ActiveXObject,
-      uuid = $.uuid,      
+      // = window.ActiveXObject,
+      uuid = $.uuid,  
       mimeTypes = {
          json: "application/json",
          xml:  "application/xml",
          html: "text/html",
          text: "text/plain"
       },
+      /**
+       * Data handlers convert data to the expected type when a response is received
+       * from the server
+       */
       handlers = {
          xml: function(xhr) {
             var doc = xhr.responseXML, root = doc.documentElement;
@@ -45,6 +33,9 @@
             return xhr.responseText;
          }
       },
+      /**
+       * The default ajax properties
+       */
       xDefaults = {
          url: window.location.href,
          method: "GET",
@@ -57,6 +48,18 @@
          success: noop,
          error: noop
       };
+      
+   function jsonp(url, success) {
+      var jpId = "_jsonp" + uuid(), script,
+         src = url.replace("callback=?", "callback=" + jpId)
+            .replace("jsonp=?", "jsonp=" + jpId),
+         handler = function() {
+            success.apply(null, slice(arguments));
+         };
+      window[jpId] = handler;
+      script = $(document.createElement("script")).attr({src: src, type: "text/javascript"});
+      $("head").append(script);
+   }
       
    function xhr(options) {
       var req, opt = extend({}, xDefaults, options), url = opt.url, dType = opt.dataType, 
@@ -71,7 +74,7 @@
       req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
       
       req.onreadystatechange = function() {
-         var state = req.readyState, code, msg, err, data, handler;
+         var state = req.readyState, code, err, data, handler;
          if(state === 4) {
             code = req.status;
             if((code >= 200 && code < 300) || code === 0) {
@@ -106,11 +109,64 @@
       xhr.send(data);
    }
    
+   /**
+    * Makes an XMLHttpRequest with the options specified.
+    * @param {Object} options The options for this request. The options object can contain the
+    * following properties
+    *
+    * <pre>
+    * url         (String)     The url to make the ajax request     (window.location.href)
+    * method      (String)     The HTTP method (GET|POST|HEAD)      ("GET")
+    * contentType (String)     The content type of this request     ("application/x-www-form-urlencoded")
+    * async       (boolean)    Whether to make an async request     (true)
+    * data        (DOM|Object|String) The data to send with request (null)
+    * dataType    (String)     The expected resultent dataType      
+    *                          ("xml"|"text"|"json")                (null)
+    * username    (String)     Optional username if required        (null)
+    * password    (String)     Optional password if required        (null)
+    * timeout     (Number)     The time in milliseconts to wait     (currently not used)
+    *                          for response                         (-1 indefinite)
+    * headers     (Object)     Various headers as key:value         ({})
+    *
+    * success     (function)   The (optional) handler thats called on successful
+    *                          completion of request. options.success(data, xhr-object)
+    *
+    * error       (function)   The (optional) handler thats called when an error occurs during
+    *                          ajax request. options.error(code | error, xhr)
+    * </pre>
+    * @function
+    */
    $.xhr = xhr;
+   
+   /**
+    * Makes a JSONP request
+    * @param {String} url The url to make a call. Must be of the format http://domain/somepath?callback=?
+    * @param {Function} success The success handler
+    */
+   $.jsonp = jsonp;
+   
+   /**
+    * An alias for $.xhr;
+    */
    $.ajax = xhr;
+   
+   /**
+    * A convenience function to GET data from server
+    * @param {String} url The url to get data from
+    * @param {Function} success The function thats called when ajax succeeds
+    * All the other parameters are set to default
+    */
    $.get = function(url, success) {
       xhr({url:url, success: success});
    };
+   
+   /**
+    * A convenience function to POST the data to the server
+    * @param {String} url The url to get data from
+    * @param {Object|DOM|String} data The data to post (optional)
+    * @param {Function} success The function thats called when ajax succeeds
+    * @param {String} dType The data type of the data expected from server, e.g. xml,json,text 
+    */
    $.post = function(url, data, success, dType) {
       var opt = {url: url, data: data, success: success};
       if(dType) {
@@ -118,22 +174,42 @@
       }
       xhr(opt);
    };
-   $.getJson = function(url, success) {
-      xhr({url: url, success: success, dataType: "json"});
+   
+   /**
+    * An alisa to $.ajax({url:url, success:success, dataType:"json"}); 
+    * @param {String} url The url to get data from
+    * @param {Function} success The function thats called when ajax succeeds
+    * @param {Function} error The function thats called when ajax encounters an error
+    */
+   $.getJson = function(url, success, error) {
+      var opt = {url: url, success: success, dataType: "json"};
+      if(getTypeOf(error) === "Function") {
+         opt.error = error;
+      }
+      xhr(opt);
    };
    
+   /**
+    * Allows to load the contents of the specified url into this element.
+    */
    $.extension("load", function(url, selector, success) {
-      var elems = this.elements, me = this, sel, callback;
+      var elems = this.elements, me = this, sel = selector, callback = success;
       if(typeof sel === "function") {
          callback = selector;
          sel = null;
       }
       
-      if(elems.length == 0) {
-         return this;
+      if(elems.length > 0) {
+         xhr({
+            url: url, 
+            success: function(data, xhr) {
+               me.html(sel ? $(document.createElement("div")).html(data).find(sel) : data);
+               if(callback) {
+                  callback(data, xhr);
+               }
+            }
+         });
       }
-      xhr({url: url, success: function(data) {
-         me.html(sel ? $(document.createElement("div")).html(data).find(sel) : data);
-      }});
+      return this;
    });
 })(h5);

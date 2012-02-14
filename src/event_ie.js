@@ -23,8 +23,7 @@
 (function($) {
    var slice = $.slice,
       forEach = $.forEach,
-      map = $.map,
-
+      filter = $.filter,
       readyCalls = [],
       isTypeOf = $.isTypeOf,
       isReady = false,
@@ -60,16 +59,8 @@
     */
    function fixEvent(evt, elem) {
       var e = evt || window.event, t = e.target, doc, body;
-      if(!e.preventDefault) {
-         e.preventDefault = function() {
-            e.returnValue = false;
-         };
-      }
-      if(!e.stopPropagation) {
-         e.stopPropagation = function() {
-            e.cancelBubble = true;
-         };
-      }
+      e.preventDefault || (e.preventDefault = function() {e.returnValue = false;});
+      e.stopPropagation || (e.stopPropagation = function() {e.cancelBubble = true;});
       
       if(!t) {
          t = e.target = e.srcElement || elem;
@@ -93,7 +84,7 @@
       if(!e.pageX || !e.pageY) {
          if(e.clientX || e.clientY) {
             doc = e.target.ownerDocument || document;
-            body = document.body;
+            body = doc.body;
             e.pageX = e.clientX + body.scrollLeft;
             e.pageY = e.clientY + body.scrollTop;
          }
@@ -303,6 +294,13 @@
                allH = allH.concat(arrH);
             });
             return allH;
+         },
+         
+         getHandlers: function(elem, type) {
+            var id = eid(elem), elemH = handlers[id] || [];
+            return filter(elemH, function(h) {
+               return h.type === type;
+            });
          }
       };
    })();
@@ -374,14 +372,25 @@
        * the data argument is not an object, its set into the property data.event
        */
       dispatch: function(type, data) {
-         return map(this.elements, function(elem) {
-            var evt = createEvent(type, data);
+         forEach(this.elements, function(elem) {
+            var evt = createEvent(type, data), arrh;
             if(elem.dispatchEvent) {
-               return elem.dispatchEvent(evt);
+               elem.dispatchEvent(evt);
             }else if(elem.fireEvent) {
-               return elem.fireEvent("on" + type, evt);
+               try {
+                  elem.fireEvent("on" + type, evt);
+               }catch(e) {
+                  console.log("Error firing event " + type + ": " + e.message);
+                  arrh = eventStore.getHandlers(elem, type);
+                  if(arrh.length > 0) {
+                     forEach(arrh, function(h) {
+                        h.call(elem, evt);
+                     });
+                  }
+               }
             }
          });
+         return this;
       }
    };
    

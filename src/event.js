@@ -22,9 +22,7 @@
  */
 (function($) {
    var forEach = $.forEach,
-      map = $.map,
       isTypeOf = $.isTypeOf,
-      getTypeOf = $.getTypeOf,
       
       readyCalls = [],
       isReady = false,
@@ -87,8 +85,7 @@
        * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
        * @param {Function} callback The callback function that will be called when the event is fired
        * on the current set of elements
-       * @param {Object} data The extra information to be passed to callback when its called
-       * @see $.capture(type, callback, data)
+       * @see $.capture(type, callback)
        */
       on: function(type, callback) {
          forEach(this.elements, function(elem) {
@@ -117,8 +114,7 @@
        * @param {String} type The type of event "click", "mouseover", "mouseout", etc.
        * @param {Function} callback The callback function that will be called when the event is fired
        * on the current set of elements
-       * @param {Object} data The extra information to be passed to callback when its called
-       * @see $.on(type, callback, data)
+       * @see $.on(type, callback)
        */
       capture: function(type, callback) {
          forEach(this.elements, function(elem) {
@@ -134,10 +130,11 @@
        * the data argument is not an object, its set into the property data.event
        */
       dispatch: function(type, data) {
-         return map(this.elements, function(elem) {
+         forEach(this.elements, function(elem) {
             var evt = createEvent(type, data);
             return elem.dispatchEvent(evt);
          });
+         return this;
       }
    };
    

@@ -6,7 +6,7 @@
       noop = function() {},
       extend = $.extend,
       xmlhttp = window.XMLHttpRequest,
-      // = window.ActiveXObject,
+      doc = $(document), // for global ajax events
       uuid = $.uuid,  
       mimeTypes = {
          json: "application/json",
@@ -54,9 +54,13 @@
          src = url.replace("callback=?", "callback=" + jpId)
             .replace("jsonp=?", "jsonp=" + jpId),
          handler = function() {
+            // dispatch an ajax start event
+            doc.dispatch("ajaxcomplete", url);
             success.apply(null, slice(arguments));
          };
       window[jpId] = handler;
+      // dispatch an ajax start event
+      doc.dispatch("ajaxstart", url);
       script = $(document.createElement("script")).attr({src: src, type: "text/javascript"});
       $("head").append(script);
    }
@@ -64,9 +68,16 @@
    function xhr(options) {
       var req, opt = extend({}, xDefaults, options), url = opt.url, dType = opt.dataType, 
          data = opt.data, mime = mimeTypes[dType] || "text/plain";
+         
+      // dispatch ajax start event on document
+      doc.dispatch("ajaxstart", url);
       
       req = xmlhttp ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-      req.open(opt.method, url, opt.async, opt.uname, opt.password);
+      if(opt.username) { 
+         req.open(opt.method, url, opt.async, opt.username, opt.password);
+      }else {
+         req.open(opt.method, url, opt.async);
+      }
       
       forEach(opt.headers, function(v, k) {
          req.setRequestHeader(k, v);
@@ -76,6 +87,9 @@
       req.onreadystatechange = function() {
          var state = req.readyState, code, err, data, handler;
          if(state === 4) {
+            // dispatch an ajax complete event on document
+            doc.dispatch("ajaxcomplete", url);
+            
             code = req.status;
             if((code >= 200 && code < 300) || code === 0) {
                handler = handlers[dType] || handlers.text;

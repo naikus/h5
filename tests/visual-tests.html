@@ -48,6 +48,7 @@
       <textarea id="jsonpdata">
       </textarea>
         <script type="text/javascript">
+          var doc = $(document);
 
           $.extension("sayHello", function() {});
 
@@ -88,6 +89,14 @@
           
           $("#remove").on("click", function() {
               $("#mytable").remove('.rem');
+          });
+          
+          doc.on("ajaxstart", function() {
+             $(this.body).setStyle({backgroundColor: "#aaa"});
+          });
+          
+          doc.on("ajaxcomplete", function() {
+             $(this.body).setStyle({backgroundColor: "#fff"});
           });
           
           $("#jsonp").on("click", function() {

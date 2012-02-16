@@ -30,15 +30,7 @@
       isTypeOf = $.isTypeOf,
       isArray = $.isArray,
       getTypeOf = $.getTypeOf,
-      nt = {
-         ELEMENT_NODE: 1,
-         ATTRIBUTE_NODE: 2,
-         TEXT_NODE: 3,
-         // CDATA_SECTION_NODE: 4, ENTITY_REFERENCE_NODE: 5, ENTITY_NODE: 6, 
-         // PROCESSING_INSTRUCTION_NODE: 7, COMMENT_NODE: 8,
-         DOCUMENT_NODE: 9
-      //, DOCUMENT_TYPE_NODE: 10, DOCUMENT_FRAGMENT_NODE: 11, NOTATION_NODE: 12
-      };
+      clsRegExps = {};
      
    /**
     * Removes all the children of the specified element using DOM APIs
@@ -77,7 +69,11 @@
    }
       
    function validElem(elem)   {
-      return elem && elem.nodeType === nt.ELEMENT_NODE;
+      return elem && elem.nodeType === 1;
+   }
+   
+   function classRe(clazz) {
+      return clsRegExps[clazz] || (clsRegExps[clazz] = new RegExp("(^|\\s+)" + clazz + "(?:\\s+|$)")); 
    }
      
    /**
@@ -141,71 +137,35 @@
    }
    
    function hasClass(elem, clName) {
-      var cList, arr, i, len;
-
-      if(!validElem(elem)) {
-         return false;
-      }
-      // check for HTML5 element.classList (DOMTokenList)
-      cList = elem.classList;
-      if(cList) {
-         return cList.contains(clName);
-      }
-
-      arr = (elem.className || "").split(" ");
-      for(i = 0, len = arr.length; i < len && arr[i] !== clName; i++){}
-      return i < arr.length;
+      return classRe(clName).test(elem.className);
    }
    
-   function addClass(elem, clName)  {
-      if(!clName) {
-         return;
+   function addClass(elem, clName) {
+      var cList = elem.classList;
+      if(!cList || !clName) {
+         return false;
       }
-      if(validElem(elem))  {
-         var cList = elem.classList;
-         if(cList) {
-            cList.add(clName);
-            return;
-         }
-         if(!hasClass(elem, clName))  {
-            elem.className += " " + clName;
-         }
-      }
+      cList.add(clName);
+      return true;
    }
    
    function removeClass(elem, clName) {
-      var cList, strClasses, classes, updatedCls;
-
-      if(validElem(elem))  {
-         cList = elem.classList;
-         if(cList) {
-            cList.remove(clName);
-            return;
-         }
-
-         strClasses = (elem.className || "");
-         if(strClasses.indexOf(clName) !== -1)   {
-            classes = strClasses.split(" ");
-            updatedCls = filter(classes, function(val, idx) {
-               return val !== clName;
-            });
-            elem.className = updatedCls.join(" ");
-         }
+      var cList = elem.classList;
+      if(!cList || !clName) {
+         return false;
       }
+      cList.remove(clName);
+      return true;
    }
    
    function data(elem, prop, val) {
-      var arglen = arguments.length, dmap = elem.datamap;
-      if(!dmap) {
-         elem.datamap = dmap = {};
-      }
-
+      var arglen = arguments.length, dmap = elem.datamap || (elem.datamap = {});
       if(arglen === 1)  {
          return dmap;
       }else if(arglen === 2) {
          return dmap[prop];
       }else {
-         dmap = elem.datamap = elem.datamap || {};
+         //dmap = elem.datamap = elem.datamap || {};
          dmap[prop] = val;
          return null;
       }
@@ -424,27 +384,27 @@
       },
          
       /**
-       * Appends the html content (node, or html string) to the first matching element.
+       * Appends the html content (node, or html string) to the first matched element.
        * @param {String|Node} html The html content to append
        * @return {Object} the same nodelist for chaining
        */
       append: function(html)  {
          var elements = this.elements;
-         if(! html || elements.length === 0) {
+         if(!html || !elements.length) {
             return this;
          }
-         append(elements[0], html); 
+         append(elements[0], html);
          return this;
       },
          
       /**
-       * Prepends the html to the first matching element in this context (nodelist)
+       * Prepends the html to the first matched element in this context (nodelist)
        * @param {String|Node} html The html content to prepend (insertbefore)
        * @return {Object} the nodelist object for chaining
        */
       prepend: function(html) {
          var elements = this.elements;
-         if(! html || elements.length === 0) {
+         if(!html || !elements.length) {
             return this;
          }
          prepend(elements[0], html); 
@@ -464,17 +424,16 @@
        */
       remove: function(/* sel */) {
          var sel, elems = this.elements;
-         if(arguments.length === 0) {
+         if(!arguments.length) {
             forEach(elems, function(e) {
                var p = e.parentNode;
                p.removeChild(e);
             });
             this.elements = [];
-         }else if(elems.length > 0) {
+         }else if(elems.length) {
             sel = arguments[0];
             forEach(elems, function(e) {
-               var rElems = $(sel, e);
-               forEach(rElems, function(re) {
+               forEach($(sel, e), function(re) {
                   var n = re.parentNode;
                   return n ? n.removeChild(re) : null;
                });
@@ -494,11 +453,8 @@
        * $("#mypara").hasClass(info); // true
        */
       hasClass: function(cl) {
-         var elements = this.elements;
-         if(elements.length === 0) {
-            return false;
-         }
-         return hasClass(elements[0], cl);
+         var elems = this.elements;
+         return elems.length && hasClass(elems[0], cl);
       },
          
       /**
@@ -514,11 +470,10 @@
        */
       addClass: function(cl)  {
          var elements = this.elements;
-         if(elements.length === 0) {
-            return this;
-         }
          forEach(elements, function(el) {
-            addClass(el, cl);
+            if(!addClass(el, cl) || !hasClass(el, cl)) {
+               el.className += " " + cl;
+            }
          });
          return this;
       },
@@ -535,12 +490,11 @@
        * &lt;p id="mypara" class="foo baz"&gt;Hello&lt;/p&gt;
        */
       removeClass: function(cl)  {
-         var elements = this.elements;
-         if(elements.length === 0) {
-            return this;
-         }
-         forEach(elements, function(el) {
-            removeClass(el, cl);        
+         forEach(this.elements, function(el) {
+            var cName;
+            if(!removeClass(el, cl) && hasClass(el, cl)) {
+               el.className = el.className.replace(classRe(cl), "$1");
+            }        
          });
          return this;
       },

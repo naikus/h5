@@ -404,7 +404,7 @@
       nodelist.isTypeOf = isTypeOf;
       nodelist.slice = function(arrayLike, start, end) {
          return slice.call(arrayLike, start, end);
-      }
+      };
       nodelist.extend = extend;
       nodelist.getFragments = fragments;
       nodelist.uuid = uuid;

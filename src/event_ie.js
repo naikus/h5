@@ -64,6 +64,7 @@
       
       if(!t) {
          t = e.target = e.srcElement || elem;
+         e.currentTarget = elem; //ofcourse :D
       }
       
       // bug in safari?

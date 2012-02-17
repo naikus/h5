@@ -20,11 +20,11 @@
        */
       handlers = {
          xml: function(xhr) {
-            var doc = xhr.responseXML, root = doc.documentElement;
+            var rDoc = xhr.responseXML, root = rDoc.documentElement;
             if(root && root.nodeName === "parseerror") {
                throw new Error("parseerror");
             }
-            return doc;
+            return rDoc;
          },
          json: function(xhr) {
             return JSON.parse(xhr.responseText);
@@ -55,7 +55,7 @@
             .replace("jsonp=?", "jsonp=" + jpId),
          handler = function() {
             // dispatch an ajax start event
-            doc.dispatch("ajaxcomplete", url);
+            doc.dispatch("ajaxend", url);
             success.apply(null, slice(arguments));
          };
       window[jpId] = handler;
@@ -64,13 +64,21 @@
       script = $(document.createElement("script")).attr({src: src, type: "text/javascript"});
       $("head").append(script);
    }
+   
+   function dispatch(evt, data) {
+      try {
+         doc.dispatch(evt, data);
+      }catch(e) {
+         console.log("Error dispatching ajax event: " + e.message);
+      }
+   }
       
    function xhr(options) {
       var req, opt = extend({}, xDefaults, options), url = opt.url, dType = opt.dataType, 
          data = opt.data, mime = mimeTypes[dType] || "text/plain";
          
       // dispatch ajax start event on document
-      doc.dispatch("ajaxstart", url);
+      dispatch("ajaxstart", url);
       
       req = xmlhttp ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
       if(opt.username) { 
@@ -87,11 +95,9 @@
       req.onreadystatechange = function() {
          var state = req.readyState, code, err, data, handler;
          if(state === 4) {
-            // dispatch an ajax complete event on document
-            doc.dispatch("ajaxcomplete", url);
-            
             code = req.status;
             if((code >= 200 && code < 300) || code === 0) {
+               dispatch("ajaxsuccess", url);
                handler = handlers[dType] || handlers.text;
                try {
                   data = handler(xhr);
@@ -104,8 +110,12 @@
                   opt.success(data, xhr);
                }
             }else {
+               dispatch("ajaxerror", {data: {url: url, status: code}});
                opt.error(code, xhr);
             }
+            
+            // dispatch an ajax complete event on document
+            dispatch("ajaxend", url);
          }
       };
       

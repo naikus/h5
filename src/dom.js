@@ -72,7 +72,9 @@
    }
    
    function classRe(clazz) {
-      return clsRegExps[clazz] || (clsRegExps[clazz] = new RegExp("(^|\\s+)" + clazz + "(?:\\s+|$)")); 
+      // new RegExp("\\b" + clazz + "[^\w-]")
+      return clsRegExps[clazz] || (clsRegExps[clazz] = 
+            new RegExp("(^|\\s+)" + clazz + "(?:\\s+|$)")); // thank you xui.js :) 
    }
      
    /**
@@ -227,7 +229,7 @@
        * @memberOf nodelist
        */
       html: function(markup)  {
-         var elements = this.elements, ret;
+         var elements = this.elements, ret, isStr;
          if(arguments.length === 0) {
             ret = [];
             forEach(elements, function(el) {
@@ -236,15 +238,16 @@
             return ret.join("");
          }
          markup = markup || "";
+         isStr = isTypeOf(markup, "String");
          forEach(elements, function(elem) {
-            if(isTypeOf(markup, "String")) {
+            if(isStr) {
                try {
                   elem.innerHTML = markup;
                }catch(e)   {
                   replace(elem, markup);
                }
             }else {
-               replace(elem, html);
+               replace(elem, markup);
             }
          });
          return this;

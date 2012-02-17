@@ -216,12 +216,13 @@
     * Extends the target object from multiple sources
     */
    function extend(/*target, source0, souce1, souce2, ... */) {
-      var target = arguments(0), sources = slice.call(arguments, 1);
+      var target = arguments[0], sources = slice.call(arguments, 1);
       forEach(sources, function(src) {
          for(var k in src) {
             target[k] = src[k];
          }
       });
+      return target;
    }
 
     

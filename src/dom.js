@@ -26,7 +26,6 @@
       fragments = $.getFragments,
       slice = $.slice,
       forEach = $.forEach,
-      filter = $.filter,
       isTypeOf = $.isTypeOf,
       isArray = $.isArray,
       getTypeOf = $.getTypeOf,

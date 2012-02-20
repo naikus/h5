@@ -1,21 +1,3 @@
-/*jslint
-    nomen: false,
-    debug: true,
-    indent: 3,
-    plusplus: false,
-    evil: true, 
-    onevar: true,
-    browser: true,
-    white: false
-*/
-/*global
-    window: true,
-    h5: true,
-    navigator: true,
-    XMLHttpRequest: true,
-    ActiveXObject: true,
-    unescape: true
-*/
 /**
  * The event module. Provides methods to add, remove, delegate and fire events and othe convenicence
  * methods
@@ -25,8 +7,7 @@
       isTypeOf = $.isTypeOf,
       
       readyCalls = [],
-      isReady = false,
-      eventApi;
+      isReady = false;
       
    /**
     * Creates and initializes an event.
@@ -78,7 +59,7 @@
       }
    })();
       
-   eventApi = {
+   $.extension({
       /**
        * Adds an event listener, <tt>callback</tt> for the specified event on the current set of 
        * element(s). The capturing is set to false
@@ -136,16 +117,7 @@
          });
          return this;
       }
-   };
-   
-   /*
-   forEach(["mouseover", "mousedown", "mouseup", "click", "dblclick", "mouseout", "keydown", 
-         "keyup", "keypress", "focus", "blur", "focusin", "focusout"], function(e) {
-      eventApi[e] = function(callback, capture) {
-         return capture === true ? this.capture(e, callback) : this.on(e, callback);
-      };
    });
-   */
    
    /**
     * The DOM ready function, This will be called as soon as possible when the DOM content of the
@@ -160,5 +132,78 @@
       }
    };
    
-   $.extension(eventApi);
+   $.defineEvent = function() {};
 })(h5);
+
+
+(function($) {
+   /**
+    * Add support touch related convenience events 
+    */
+   if(document.createTouch) {
+      $.ready(function() {
+         var state = {}, timer;
+         
+         function hasMoved(x1, y1, x2, y2) {
+            return Math.abs(x2 - x1) > 30 || Math.abs(y2 - y1) > 30;
+         }
+         
+         $(document.body)
+            .capture("touchstart",  function(te) {
+               var now = Date.now(), touch = te.touches[0], elapsed = now - (state.last || now), target = te.target;
+               clearTimeout(timer);
+               if(elapsed > 0 && elapsed < 250 && target === state.target) { // may be douple tap
+                  state.dblTap = true;
+               }else {
+                  state = {};
+                  state.x = touch.screenX;
+                  state.y = touch.screenY;
+                  state.last = now;
+                  state.target = target;
+                  timer = setTimeout(function() {
+                     if(state.moved) {return;}
+                     state.taphold = true;
+                     te.preventDefault();
+                     $(target).dispatch("taphold");
+                  }, 700);
+               }
+            })
+            .capture("touchmove",   function(te) {
+               var touch = te.changedTouches[0];
+               state.moved = state.moved || hasMoved(state.x, state.y, touch.screenX, touch.screenY);
+               if(state.moved) {
+                  clearTimeout(timer);
+               }
+            })
+            .capture("touchend",    function(te) {
+               var touch = te.changedTouches[0], target = te.target;
+               clearTimeout(timer);
+               if(state.moved || state.taphold) {
+                  state = {};
+                  return;
+               }
+               if(state.dblTap) {
+                  if(state.target === target) {
+                     $(target).dispatch("dbltap");
+                     state = {};
+                  }else {
+                     $(target).dispatch("tap");
+                  }
+               }else {
+                  $(target).dispatch("tap");
+               }
+               te.preventDefault();
+            })
+            .capture("touchenter",  function(te) {})
+            .capture("touchleave",  function(te) {})
+            .capture("touchcancel", function(te) {
+               clearTimeout(timer);
+            });
+      });
+   }else {
+      console.log("Your browser does not support touch on this device");
+   }
+})(h5);
+
+
+

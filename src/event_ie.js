@@ -1,21 +1,3 @@
-/*jslint
-    nomen: false,
-    debug: true,
-    indent: 3,
-    plusplus: false,
-    evil: true, 
-    onevar: true,
-    browser: true,
-    white: false
-*/
-/*global
-    window: true,
-    h5: true,
-    navigator: true,
-    XMLHttpRequest: true,
-    ActiveXObject: true,
-    unescape: true
-*/
 /**
  * The event module. Provides methods to add, remove, delegate and fire events and othe convenicence
  * methods
@@ -27,7 +9,6 @@
       readyCalls = [],
       isTypeOf = $.isTypeOf,
       isReady = false,
-      eventApi,
       eventStore,
       create = document.createEvent;
    
@@ -307,7 +288,7 @@
    })();
    
    
-   eventApi = {
+   $.extension({
       /**
        * Adds an event listener, <tt>callback</tt> for the specified event on the current set of 
        * element(s). The capturing is set to false
@@ -393,16 +374,20 @@
          });
          return this;
       }
-   };
-   
-   /*
-   forEach(["mouseover", "mousedown", "mouseup", "click", "dblclick", "mouseout", "keydown", 
-         "keyup", "keypress", "focus", "blur", "focusin", "focusout"], function(e) {
-      eventApi[e] = function(callback, capture) {
-         return capture === true ? this.capture(e, callback) : this.on(e, callback);
-      };
    });
-   */
+   
+   /**
+    * The DOM ready function, This will be called as soon as possible when the DOM content of the
+    * document is available.
+    * @param callback {Function} The callback function to call as when DOM is ready.
+    */
+   $.ready = function(callback) {
+      if(isReady) {
+         callback.call(window);         
+      }else {
+         readyCalls.push(callback);
+      }
+   };
    
    (function init() {
       var h, attachEvent = document.attachEvent;
@@ -424,19 +409,4 @@
          });
       }
    })();
-   
-   /**
-    * The DOM ready function, This will be called as soon as possible when the DOM content of the
-    * document is available.
-    * @param callback {Function} The callback function to call as when DOM is ready.
-    */
-   $.ready = function(callback) {
-      if(isReady) {
-         callback.call(window);         
-      }else {
-         readyCalls.push(callback);
-      }
-   };
-   
-   $.extension(eventApi);
 })(h5);

@@ -1,21 +1,3 @@
-/*jslint
-    nomen: false,
-    debug: true,
-    indent: 3,
-    plusplus: false,
-    evil: true, 
-    onevar: true,
-    browser: true,
-    white: false
-*/
-/*global
-    window: true,
-    h5: true,
-    navigator: true,
-    XMLHttpRequest: true,
-    ActiveXObject: true,
-    unescape: true
-*/
 /**
  * The DOM manipulation module. This provides various convenience methods for working with DOM and
  * css

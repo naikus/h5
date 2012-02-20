@@ -6,6 +6,14 @@
    var forEach = $.forEach,
       isTypeOf = $.isTypeOf,
       
+      extend = $.extend,
+      noop = function() {}, customEvents = {}, 
+      defaultDefn = {
+         setup: noop,
+         destroy: noop,
+         defaultAction: noop
+      },
+      
       readyCalls = [],
       isReady = false;
       
@@ -49,6 +57,28 @@
       readyCalls = null;
    }
    
+   function setupCustomEvent(type, elems) {
+      var eData = customEvents[type], defn, count;
+      if(!eData) {return;}
+      
+      count = eData.count;
+      if(!count) { // setup this custom event
+         defn = eData.definition;
+         defn.setup(type);
+      }
+      eData.count += elems.length;
+   }
+   
+   function destroyCustomEvent(type, elems) {
+      var eData = customEvents[type], defn, count;
+      if(!eData || !eData.count) {return;}
+      eData.count -= elems.length;
+      if(!eData.count) {
+         defn = eData.definition;
+         defn.destroy(type);
+      }
+   }
+   
    (function init() {
       var h = function() {
             document.removeEventListener("DOMContentLoaded", h, false);
@@ -69,7 +99,10 @@
        * @see $.capture(type, callback)
        */
       on: function(type, callback) {
-         forEach(this.elements, function(elem) {
+         var elems = this.elements;
+         setupCustomEvent(type, elems);
+         
+         forEach(elems, function(elem) {
             elem.addEventListener(type, callback, false);
          });
          return this;
@@ -83,7 +116,9 @@
        * @param {boolean} capture Whether the callback was registered for capturing or bubbling phase
        */
       un: function(type, callback, capture) {
-         forEach(this.elements, function(elem) {
+         var elems = this.elements;
+         destroyCustomEvent(type, elems);
+         forEach(elems, function(elem) {
             elem.removeEventListener(type, callback, capture || false);
          });
          return this;
@@ -131,79 +166,38 @@
          readyCalls.push(callback);
       }
    };
-   
-   $.defineEvent = function() {};
-})(h5);
 
-
-(function($) {
    /**
-    * Add support touch related convenience events 
-    */
-   if(document.createTouch) {
-      $.ready(function() {
-         var state = {}, timer;
-         
-         function hasMoved(x1, y1, x2, y2) {
-            return Math.abs(x2 - x1) > 30 || Math.abs(y2 - y1) > 30;
-         }
-         
-         $(document.body)
-            .capture("touchstart",  function(te) {
-               var now = Date.now(), touch = te.touches[0], elapsed = now - (state.last || now), target = te.target;
-               clearTimeout(timer);
-               if(elapsed > 0 && elapsed < 250 && target === state.target) { // may be douple tap
-                  state.dblTap = true;
-               }else {
-                  state = {};
-                  state.x = touch.screenX;
-                  state.y = touch.screenY;
-                  state.last = now;
-                  state.target = target;
-                  timer = setTimeout(function() {
-                     if(state.moved) {return;}
-                     state.taphold = true;
-                     te.preventDefault();
-                     $(target).dispatch("taphold");
-                  }, 700);
-               }
-            })
-            .capture("touchmove",   function(te) {
-               var touch = te.changedTouches[0];
-               state.moved = state.moved || hasMoved(state.x, state.y, touch.screenX, touch.screenY);
-               if(state.moved) {
-                  clearTimeout(timer);
-               }
-            })
-            .capture("touchend",    function(te) {
-               var touch = te.changedTouches[0], target = te.target;
-               clearTimeout(timer);
-               if(state.moved || state.taphold) {
-                  state = {};
-                  return;
-               }
-               if(state.dblTap) {
-                  if(state.target === target) {
-                     $(target).dispatch("dbltap");
-                     state = {};
-                  }else {
-                     $(target).dispatch("tap");
-                  }
-               }else {
-                  $(target).dispatch("tap");
-               }
-               te.preventDefault();
-            })
-            .capture("touchenter",  function(te) {})
-            .capture("touchleave",  function(te) {})
-            .capture("touchcancel", function(te) {
-               clearTimeout(timer);
-            });
-      });
-   }else {
-      console.log("Your browser does not support touch on this device");
-   }
+    * 
+    */   
+   $.defineEvent = function(definition) {
+      var eData, defn, type;
+      
+      // this is unmanaged eager definition, probably defining multiple custom events
+      if(typeof definition === "function") {
+         $.ready(definition);
+         return;
+      }
+      type = definition.type;
+      if(!type) {
+         console.log("Missing type in event definition");
+         return;
+      }
+      eData = customEvents[type];
+      if(eData) {
+         defn = eData.definition;
+         defn.destroy();
+         console.log("Event " + type + " is already defined, overwriting!");
+      }else {
+         eData = {
+            type: type,
+            count: 0,
+            definition: extend({}, defaultDefn, definition)
+         };
+      }
+   };
 })(h5);
+
 
 
 

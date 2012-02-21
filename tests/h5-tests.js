@@ -196,6 +196,40 @@ var AllTests = (function() {
             }).dispatch("click").un("click");
          });
          
+         test("$.defineEvent test", function() {
+            var msg, lis;
+            
+            $.defineEvent(function() {
+               var state = {}, h = function(e) {
+                  console.log("Dispatching triple click");
+                  $(e.target).dispatch("tripleclick");
+               };
+               return {
+                  type: "tripleclick",
+                  setup: function() {
+                     // console.log("Setup the custom event " + this.type);
+                     $(document).on("click", h);
+                  },
+                  destroy: function() {
+                     // console.log("Destroyed custom event " + this.type);
+                     $(document).un("click", h);
+                  }
+               };
+            }());
+            
+            
+            lis = function() {
+               msg = "tripleclicked";
+            };
+            
+            $("#customEvent").on("tripleclick", lis).dispatch("click");
+            
+            equals(msg, "tripleclicked", "define event test");
+            
+            // $("#customEvent").un('tripleclick', lis);
+            
+         });
+         
          // finally start QUnit
          QUnit.start();
       }

@@ -6,8 +6,8 @@
       <filelist dir="src">
         <file name="h5.js"/>
         <file name="event.js"/>
-        <file name="touch.js"/>
         <file name="dom.js"/>
+        <file name="touch.js"/>
         <file name="xhr.js"/>
       </filelist>
     </concat>

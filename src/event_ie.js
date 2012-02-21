@@ -8,6 +8,15 @@
       filter = $.filter,
       readyCalls = [],
       isTypeOf = $.isTypeOf,
+      
+      extend = $.extend,
+      noop = function() {}, customEvents = {}, 
+      defaultDefn = {
+         setup: noop,
+         destroy: noop,
+         defaultAction: noop
+      },
+      
       isReady = false,
       eventStore,
       create = document.createEvent;
@@ -178,6 +187,28 @@
       readyCalls = null;
    }
    
+   function setupCustomEvent(type, elems) {
+      var eData = customEvents[type], defn, count;
+      if(!eData) {return;}
+      
+      count = eData.count;
+      if(!count) { // setup this custom event
+         defn = eData.definition;
+         defn.setup();
+      }
+      eData.count += elems.length;
+   }
+   
+   function destroyCustomEvent(type, elems) {
+      var eData = customEvents[type], defn, count;
+      if(!eData || !eData.count) {return;}
+      eData.count -= elems.length;
+      if(!eData.count) {
+         defn = eData.definition;
+         defn.destroy();
+      }
+   }
+   
    /**
     * Event store provides API for creating, retrieving, deleting and storing
     * handler proxies.
@@ -299,8 +330,9 @@
        * @see $.capture(type, callback, data)
        */
       on: function(type, callback, data) {
-         var evt = parse(type), domEvt = evt.type;
-         forEach(this.elements, function(elem) {
+         var evt = parse(type), domEvt = evt.type, elems = this.elements;
+         setupCustomEvent(domEvt, elems);
+         forEach(elems, function(elem) {
             var h = eventStore.createHandler(elem, type, callback, false, data);
             if(h) {
                addListener(elem, domEvt, h, false);
@@ -317,8 +349,9 @@
        * @param {boolean} capture Whether the callback was registered for capturing or bubbling phase
        */
       un: function(type, callback, capture) {
-         var evt = parse(type), domEvt = evt.type;
-         forEach(this.elements, function(elem) {
+         var evt = parse(type), domEvt = evt.type, elems = this.elements;
+         destroyCustomEvent(domEvt, elems);
+         forEach(elems, function(elem) {
             var h = eventStore.deleteHandler(elem, type, callback, capture);
             if(h) {
                removeListener(elem, domEvt, h, capture);
@@ -337,8 +370,9 @@
        * @see $.on(type, callback, data)
        */
       capture: function(type, callback, data) {
-         var evt = parse(type), domEvt = evt.type;
-         forEach(this.elements, function(elem) {
+         var evt = parse(type), domEvt = evt.type, elems = this.elements;
+         setupCustomEvent(domEvt, elems);
+         forEach(elems, function(elem) {
             var h = eventStore.createHandler(elem, type, callback, true, data);
             if(h) {
                addListener(elem, domEvt, h, true);
@@ -386,6 +420,33 @@
          callback.call(window);         
       }else {
          readyCalls.push(callback);
+      }
+   };
+   
+   $.defineEvent = function(definition) {
+      var eData, defn, type;
+      
+      type = definition.type;
+      if(!type) { // this is unmanaged eager definition, probably defining multiple custom events
+         $.ready(function() {
+            definition.setup()
+         });
+         $(document).on("unload", function() {
+            definition.destroy();
+         });
+         return;
+      }
+      eData = customEvents[type];
+      if(eData) {
+         defn = eData.definition;
+         defn.destroy();
+         console.log("Event " + type + " is already defined, overwriting!");
+      }else {
+         customEvents[type] = {
+            type: type,
+            count: 0,
+            definition: extend({}, defaultDefn, definition)
+         };
       }
    };
    

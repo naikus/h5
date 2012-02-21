@@ -64,7 +64,7 @@
       count = eData.count;
       if(!count) { // setup this custom event
          defn = eData.definition;
-         defn.setup(type);
+         defn.setup();
       }
       eData.count += elems.length;
    }
@@ -72,10 +72,11 @@
    function destroyCustomEvent(type, elems) {
       var eData = customEvents[type], defn, count;
       if(!eData || !eData.count) {return;}
+      
       eData.count -= elems.length;
       if(!eData.count) {
          defn = eData.definition;
-         defn.destroy(type);
+         defn.destroy();
       }
    }
    
@@ -133,7 +134,9 @@
        * @see $.on(type, callback)
        */
       capture: function(type, callback) {
-         forEach(this.elements, function(elem) {
+         var elems = this.elements;
+         setupCustomEvent(type, elems);
+         forEach(elems, function(elem) {
             elem.addEventListener(type, callback, true);
          });
          return this;
@@ -168,19 +171,19 @@
    };
 
    /**
-    * 
-    */   
+    * Defines a custom event
+    */
    $.defineEvent = function(definition) {
       var eData, defn, type;
       
-      // this is unmanaged eager definition, probably defining multiple custom events
-      if(typeof definition === "function") {
-         $.ready(definition);
-         return;
-      }
       type = definition.type;
-      if(!type) {
-         console.log("Missing type in event definition");
+      if(!type) { // this is unmanaged eager definition, probably defining multiple custom events
+         $.ready(function() {
+            definition.setup()
+         });
+         $(document).on("unload", function() {
+            definition.destroy();
+         });
          return;
       }
       eData = customEvents[type];
@@ -189,7 +192,7 @@
          defn.destroy();
          console.log("Event " + type + " is already defined, overwriting!");
       }else {
-         eData = {
+         customEvents[type] = {
             type: type,
             count: 0,
             definition: extend({}, defaultDefn, definition)

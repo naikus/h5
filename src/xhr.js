@@ -14,6 +14,7 @@
          html: "text/html",
          text: "text/plain"
       },
+      
       /**
        * Data handlers convert data to the expected type when a response is received
        * from the server
@@ -33,6 +34,7 @@
             return xhr.responseText;
          }
       },
+      
       /**
        * The default ajax properties
        */
@@ -49,28 +51,28 @@
          error: noop
       };
       
-   function jsonp(url, success) {
-      var jpId = "_jsonp" + uuid(), script,
-         src = url.replace("callback=?", "callback=" + jpId)
-            .replace("jsonp=?", "jsonp=" + jpId),
-         handler = function() {
-            // dispatch an ajax start event
-            doc.dispatch("ajaxend", url);
-            success.apply(null, slice(arguments));
-         };
-      window[jpId] = handler;
-      // dispatch an ajax start event
-      doc.dispatch("ajaxstart", url);
-      script = $(document.createElement("script")).attr({src: src, type: "text/javascript"});
-      $("head").append(script);
-   }
-   
    function dispatch(evt, data) {
       try {
          doc.dispatch(evt, data);
       }catch(e) {
          console.log("Error dispatching ajax event: " + e.message);
       }
+   }
+      
+   function jsonp(url, success) {
+      var jpId = "_jsonp" + uuid(), script,
+         src = url.replace("callback=?", "callback=" + jpId)
+            .replace("jsonp=?", "jsonp=" + jpId),
+         handler = function() {
+            // dispatch an ajax start event
+            dispatch("ajaxend", url);
+            success.apply(null, slice(arguments));
+         };
+      window[jpId] = handler;
+      // dispatch an ajax start event
+      dispatch("ajaxstart", url);
+      script = $(document.createElement("script")).attr({src: src, type: "text/javascript"});
+      $("head").append(script);
    }
       
    function xhr(options) {

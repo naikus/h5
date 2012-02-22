@@ -39,17 +39,21 @@
             touch = touches[0];
             now = Date.now();
             elapsed = now - (state.last || now);
+            // check if this is a double tap
             if(elapsed > 0 && elapsed < 250 && state.target === target) {
                state.dbltap = true;
             }else {
+               // this is a new tap so record some values in the current state
                state.last = now;
                state.x = touch.screenX;
                state.y = touch.screenY;
                state.target = target;
+               // set up a timer for 'taphold' event. Will only fire if there was no movement
                timer = setTimeout(function() {
                   if(state.moved) {
-                     return;
+                     return; //there was movement, so don't fire taphold
                   }
+                  // fire taphold and record the fact in the current state
                   state.wastaphold = true;
                   $(target).dispatch("taphold");
                }, 750);
@@ -57,7 +61,7 @@
             break;
          case "touchmove":
             if(!state.last) {
-               return;
+               return; // hmm, state seems to have been reset
             }
             touch = cTouches[0];
             state.distance = movement(touch.screenX, touch.screenY, state.x, state.y);
@@ -66,11 +70,10 @@
             }
             break;
          case "touchend":
-            clearTimeout(timer);
+            clearTimeout(timer); // clear the timer or taphold will fire!
             touch = cTouches[0];
-            // check if the taphold event fired
-            if(state.wastaphold || !state.last) {
-               state.wastaphold = false;
+            if(state.wastaphold || !state.last) { // check if the taphold event was fired
+               state.wastaphold = false;  //clear the state and we have nothing to do
                return;
             }
             
@@ -81,7 +84,7 @@
                tar.dispatch("swipe").dispatch("swipe" + distance.dir);
                state.x = state.y = state.distance = state.moved = null;
             }else {
-               tar.dispatch("tap");
+               tar.dispatch("tap");  // here the dbltap is fired as -> 'tap', 'tap', 'doubletap'
                if(state.dbltap) {
                   state.last = state.dbltap = false;
                   if(state.target === target) {

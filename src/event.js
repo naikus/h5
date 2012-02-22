@@ -171,7 +171,35 @@
    };
 
    /**
-    * Defines a custom event
+    * Defines a custom event. The definition is specified by the definition object described below
+    * @param definition The definition object for this custom event. This object has following
+    * properties and methods:
+    *
+    * type: The custom event that is being defined. This is optional if you are defining multiple events at a time.
+    * 
+    * setup: Function to call when you want to set up your custom handling mechanism. This is called only once. If
+    * the 'type' property is defined, this function is called when the first event listener for this event is added
+    * to an element. If the 'type' property is not defined. The setup function is called when DOM content becomes 
+    * available, specifically in $.ready().
+    *
+    * destroy: Function to cleanup the custom event. This is also called only once. If the 'type' property is
+    * defined, its called when the last event listener is removed for this custom event, and if the 'type' is not
+    * defined, its called on unload of the document    
+    * 
+    * @example
+    * <pre>
+    * $.defineEvent({
+    *    type: "bigbang",        // The custom event type you are defining. 
+    *    setup: function() {     // The code to setup event
+    *       
+    *    }, 
+    *    destroy: function() {   // The code to cleanup
+    *    
+    *    }  
+    * });  
+    * </pre>
+    * 
+    * @see See touch.js for a concrete example
     */
    $.defineEvent = function(definition) {
       var eData, defn, type;

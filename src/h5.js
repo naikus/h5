@@ -95,7 +95,7 @@
          return obj.hasOwnProperty(prop);
       }else {
          var val = obj[prop];
-         return typeof val !== "undefined" && obj.constructor.prototype[prop] !== val
+         return typeof val !== "undefined" && obj.constructor.prototype[prop] !== val;
       }
    }
    
@@ -154,8 +154,8 @@
     * @function
     */  
    function forEach(arr, callback, thisObj) {
-      var o = Object(arr), forEach = arr.forEach, key;
-      if(forEach && isFunction(forEach)) {
+      var o = Object(arr), each = arr.forEach, key;
+      if(each && isFunction(each)) {
          arr.forEach(callback, thisObj);
       }else {
          for(key in o) {
@@ -180,8 +180,8 @@
     * @function
     */
    function filter(arr, callback, thisObj) {
-      var o = Object(arr), filter = arr.filter, ret;
-      if(filter && isFunction(filter)) {
+      var o = Object(arr), fil = arr.filter, ret;
+      if(fil && isFunction(fil)) {
          return o.filter(callback, thisObj);
       }else {
          ret = [];

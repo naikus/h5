@@ -48,10 +48,6 @@
       var thatType = getTypeOf(that);
       return thatType === "NodeList" || thatType === "HTMLCollection" || (that.item && (that.length !== undef));
    }
-      
-   function validElem(elem)   {
-      return elem && elem.nodeType === 1;
-   }
    
    function classRe(clazz) {
       // new RegExp("\\b" + clazz + "[^\w-]")
@@ -490,7 +486,7 @@
        * @return {String} the value of the specified property or blank string
        * @example 
        * // Gets the background-color property of the element with id "foo"
-       * var bgcolor = $("#foo").getStyle("background-color");
+       * var bgcolor = $("#foo").getStyle("backgroundColor");
        */
       getStyle: function(prop)   {
          var elements = this.elements;
@@ -504,7 +500,7 @@
        * @example
        * // This will set the border and background-color style properties all input elements
        * $("input").setStyle({
-       *    "background-color": "#666",
+       *    "backgroundColor": "#666", // note the css property is a javascript version
        *    "border": "1px solid #333"
        * });
        */

@@ -12,7 +12,7 @@
     * @return A delta object {x: xdelta, y: ydelta} if the difference is more
     * than 30 pixels or null if its less. The values x and y can be -ve 
     */
-   function movement(x1, y1, x2, y2) {
+   function getMovement(x1, y1, x2, y2) {
       var dx = x1 - x2, dy = y1 - y2, xa, ya;
       if((xa = Math.abs(dx)) < 30 & (ya = Math.abs(dy)) < 30) {
          return null;
@@ -26,7 +26,7 @@
    
    function ontouch(te) {
       var now, elapsed, touches = te.touches, cTouches = te.changedTouches, touch, target = te.target, 
-         type = te.type, distance, tar;
+         type = te.type, movement, tar;
       
       // bail out if we have more than one touches
       if(touches.length > 1 || cTouches.length > 1) {
@@ -64,8 +64,8 @@
                return; // hmm, state seems to have been reset
             }
             touch = cTouches[0];
-            state.distance = movement(touch.screenX, touch.screenY, state.x, state.y);
-            if(state.distance) {
+            state.movement = getMovement(touch.screenX, touch.screenY, state.x, state.y);
+            if(state.movement) {
                state.moved = true;
             }
             break;
@@ -78,11 +78,11 @@
             }
             
             // check for swipe events
-            distance = state.distance;
+            movement = state.movement;
             tar = $(target);
-            if(distance) {
-               tar.dispatch("swipe").dispatch("swipe" + distance.dir);
-               state.x = state.y = state.distance = state.moved = null;
+            if(movement) {
+               tar.dispatch("swipe").dispatch("swipe" + movement.dir);
+               state.x = state.y = state.movement = state.moved = null;
             }else {
                tar.dispatch("tap");  // here the dbltap is fired as -> 'tap', 'tap', 'doubletap'
                if(state.dbltap) {

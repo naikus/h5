@@ -3,10 +3,12 @@
 
 
 ### Goals
+-----
 h5 aims to be a mini javascript library that can be used to build mobile and small desktop apps targetted towards latest browsers. Although h5 also provides extensions and a way to make it work with older browsers upto IE6.
 
 
 ### Features
+-----
 - The familiar '$', also available as 'h5' globally.
 - A small core h5.js
 - An 'extension' API to plug in new extensions to h5, via $.extension(...).
@@ -15,6 +17,7 @@ h5 aims to be a mini javascript library that can be used to build mobile and sma
 
 
 ### Extensions
+-----
 Following extensions are currently provided:
 
 - "dom" `dom.js` provides various methods with familier syntax to manipulate DOM.
@@ -23,6 +26,7 @@ Following extensions are currently provided:
 - "touch" `touch.js` defines touch related events using event module's event definition mechanism to define tap, dbltap, taphold swipe, swipeleft and swiperight events for a touch enabled device.
 
 ### Extending h5
+-----
 h5 can be easily extended with new extensions using its "extension API". The examples below show two ways of doing it.
 
 ```javascript
@@ -54,6 +58,7 @@ $("table.data-table > tbody > tr").zebra({odd: "my-odd", even: "my-even"});
 ```
 
 ### Building
+-----
 h5 can be used as is including all the js files or can be built into a single js file h5.js. It requires ant to build. For a list of included modules included in each build target see build.xml file.
 
 - To build h5 for newer browsers type `$>ant` at the console.

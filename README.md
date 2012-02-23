@@ -16,6 +16,7 @@ h5 aims to be a mini javascript library that can be used to build mobile and sma
 
 ### Extensions
 Following extensions are currently provided:
+
 - "dom" `dom.js` provides various methods with familier syntax to manipulate DOM.
 - "event" `event.js` and `event_ie.js` provide convenient API to manage events including defining new events.
 - "xhr" `xhr.js` provides a nice little wrapper around XMLHttpRequest including additional methods as well as ajax events.

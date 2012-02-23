@@ -18,12 +18,13 @@ h5 aims to be a mini javascript library that can be used to build mobile and sma
 h5 can be used as is including all the js files or can be built into a single js file h5.js. It requires ant to build. For a list of included modules included in each build target see build.xml file.
 
 - To build h5 for newer browsers type 
-
+  
   $>ant
   
   This will generate h5.js (a combined file with code comments) and a h5.min.js file which is a minified file with various modules. 
 
 
 - For older browsers type
-
+  
   $>ant build-legacy
+  

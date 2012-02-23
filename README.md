@@ -14,17 +14,36 @@ h5 aims to be a mini javascript library that can be used to build mobile and sma
 - An few basic extensions (dom, event, events-for-ie, xhr, touch support)
 
 
+### Extensions
+Following extensions are currently provided:
+- dom: `dom.js` provides various methods with familier syntax to manipulate DOM.
+- event: `event.js` and `event_ie.js` provide convenient API to manage events including defining new events.
+- xhr: `xhr.js` provides a nice little wrapper around XMLHttpRequest including additional methods as well as ajax events.
+- touch: `touch.js` defines touch related events using event module's event definition mechanism to define tap, dbltap, taphold swipe, swipeleft and swiperight events for a touch enabled device.
+
+### Extending h5
+h5 can be easily extended with new extensions using its "extension API". The examples below show two ways of doing it.
+
+```javascript
+   $.extension({
+      hide: function() {
+         this.get(0).style.display = "none";
+         return this;
+      },
+      show: function() {
+         this.get(0).style.display = "";
+         return this;
+      }
+   });
+   
+   // now use it!
+   $("#loginPanel").show();
+```
+
 ### Building
 h5 can be used as is including all the js files or can be built into a single js file h5.js. It requires ant to build. For a list of included modules included in each build target see build.xml file.
 
-- To build h5 for newer browsers type 
-  
-  $>ant
-  
+- To build h5 for newer browsers type `$>ant` at the console.
   This will generate h5.js (a combined file with code comments) and a h5.min.js file which is a minified file with various modules. 
 
-
-- For older browsers type
-  
-  $>ant build-legacy
-  
+- For older browsers type `$>ant build-legacy`. This builds modules required for older browsers.   Specifically the event module.

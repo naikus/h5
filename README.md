@@ -26,19 +26,31 @@ Following extensions are currently provided:
 h5 can be easily extended with new extensions using its "extension API". The examples below show two ways of doing it.
 
 ```javascript
-   $.extension({
-      hide: function() {
-         this.get(0).style.display = "none";
-         return this;
-      },
-      show: function() {
-         this.get(0).style.display = "";
-         return this;
-      }
+$.extension({
+   hide: function() {
+      this.get(0).style.display = "none";
+      return this;
+   },
+   show: function() {
+      this.get(0).style.display = "";
+      return this;
+   }
+});
+
+// now use it!
+$("#loginPanel").show();
+
+// another way is:
+$.extension("zebra", function(options) {
+   var opts = $.extend({}, {even: "even", odd: "odd"}, options);
+   this.forEach(function(elem, i) {
+      $(elem).addClass(i % 2 === 0 ? opts.even : opts.odd);
    });
-   
-   // now use it!
-   $("#loginPanel").show();
+   return this; // for chaining
+});
+
+// now use it!
+$("table.data-table > tbody > tr").zebra({odd: "my-odd", even: "my-even"});
 ```
 
 ### Building

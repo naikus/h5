@@ -24,6 +24,11 @@
       };
    }
    
+   function clearState() {
+      state.last = state.x = state.y = state.target = state.moved = 
+         state.movement = state.wastaphold = state.dbltap = null;
+   }
+   
    function ontouch(te) {
       var now, elapsed, touches = te.touches, cTouches = te.changedTouches, touch, target = te.target, 
          type = te.type, movement, tar;
@@ -48,6 +53,7 @@
                state.x = touch.screenX;
                state.y = touch.screenY;
                state.target = target;
+               state.moved = null;
                // set up a timer for 'taphold' event. Will only fire if there was no movement
                timer = setTimeout(function() {
                   if(state.moved) {
@@ -60,7 +66,7 @@
             }
             break;
          case "touchmove":
-            if(!state.last) {
+            if(!state.last || state.wastaphold) {
                return; // hmm, state seems to have been reset
             }
             touch = cTouches[0];
@@ -73,7 +79,8 @@
             clearTimeout(timer); // clear the timer or taphold will fire!
             touch = cTouches[0];
             if(state.wastaphold || !state.last) { // check if the taphold event was fired
-               state.wastaphold = false;  //clear the state and we have nothing to do
+               // state.wastaphold = false;  //clear the state and we have nothing to do
+               clearState();
                return;
             }
             
@@ -86,7 +93,7 @@
             }else {
                tar.dispatch("tap");  // here the dbltap is fired as -> 'tap', 'tap', 'doubletap'
                if(state.dbltap) {
-                  state.last = state.dbltap = false;
+                  state.dbltap = state.last = null;
                   if(state.target === target) {
                      tar.dispatch("dbltap");
                   }
@@ -94,6 +101,7 @@
             }
             break;
          default:
+            clearState();
             break;
       }
    }

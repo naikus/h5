@@ -20,10 +20,10 @@ h5 aims to be a mini javascript library that can be used to build mobile and sma
 -----
 Following extensions are currently provided:
 
--   _dom_   `dom.js` provides various methods with familier syntax to manipulate DOM.
-- _event_ `event.js` and `event_ie.js` provide convenient API to manage events including defining new events.
--   _xhr_   `xhr.js` provides a nice little wrapper around XMLHttpRequest including additional methods as well as ajax events.
-- _touch_ `touch.js` defines touch related events using event module's event definition mechanism to define tap, dbltap, taphold swipe, swipeleft and swiperight events for a touch enabled device.
+- __dom__   `dom.js` provides various methods with familier syntax to manipulate DOM.
+- __event__ `event.js` and `event_ie.js` provide convenient API to manage events including defining new events.
+- __xhr__   `xhr.js` provides a nice little wrapper around XMLHttpRequest including additional methods as well as ajax events.
+- __touch__ `touch.js` defines touch related events using event module's event definition mechanism to define tap, dbltap, taphold swipe, swipeleft and swiperight events for a touch enabled device.
 
 ### Extending h5
 -----

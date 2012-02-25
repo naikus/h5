@@ -2,120 +2,66 @@
  * Defines custom events for touch related gusters.
  * Following events are defined:
  * tap, dbltap, taphold, swipe, swipeleft, swiperight
- * @author anaik 
+ * @author aniketn3@gmail.com 
  */
-(function($) {
-   var state = {}, timer;
-   
-   /**
-    * Calculate the delta difference between two points (x1,y1) and (x2,y2)
-    * @return A delta object {x: xdelta, y: ydelta} if the difference is more
-    * than 30 pixels or null if its less. The values x and y can be -ve 
-    */
-   function getMovement(x1, y1, x2, y2) {
-      var dx = x1 - x2, dy = y1 - y2, xa, ya;
-      if((xa = Math.abs(dx)) < 30 & (ya = Math.abs(dy)) < 30) {
-         return null;
-      }
-      return {
-         x: dx,
-         y: dy,
-         dir: xa >= ya ? (dx < 0 ? "left" : "right") : (dy < 0 ? "up" : "down") 
-      };
-   }
+ 
+/**
+ * Tap event definition
+ */
+(function($, undefn) {
+   var state = {id: null, x: null, y: null, target: null }, undef = undefn;
    
    function clearState() {
-      state.last = state.x = state.y = state.target = state.moved = 
-         state.movement = state.wastaphold = state.dbltap = null;
+      state.id = state.x = state.y = state.target = undef;
+   }
+   
+   function hasMoved(x1, y1, x2, y2) {
+      var dx = x1 - x2, dy = y1 - y2, xa, ya;
+      return (xa = Math.abs(dx)) > 30 || (ya = Math.abs(dy)) > 30
    }
    
    function ontouch(te) {
-      var now, elapsed, touches = te.touches, cTouches = te.changedTouches, touch, target = te.target, 
-         type = te.type, movement, tar;
-      
-      // bail out if we have more than one touches
-      if(touches.length > 1 || cTouches.length > 1) {
-         state = {};
-         return;
-      }
-      
+      var type = te.type, touch, touches, cTouches, touchId, target = te.target;
       switch(type) {
          case "touchstart":
+            touches = te.touches;
+            if(touches.length !== 1) {
+               return;
+            }
             touch = touches[0];
-            now = Date.now();
-            elapsed = now - (state.last || now);
-            // check if this is a double tap
-            if(elapsed > 0 && elapsed < 250 && state.target === target) {
-               state.dbltap = true;
-            }else {
-               // this is a new tap so record some values in the current state
-               state.last = now;
-               state.x = touch.screenX;
-               state.y = touch.screenY;
-               state.target = target;
-               state.moved = null;
-               // set up a timer for 'taphold' event. Will only fire if there was no movement
-               timer = setTimeout(function() {
-                  if(state.moved) {
-                     return; //there was movement, so don't fire taphold
-                  }
-                  // fire taphold and record the fact in the current state
-                  state.wastaphold = true;
-                  $(target).dispatch("taphold");
-               }, 750);
-            }
-            break;
-         case "touchmove":
-            if(!state.last || state.wastaphold) {
-               return; // hmm, state seems to have been reset
-            }
-            touch = cTouches[0];
-            state.movement = getMovement(touch.screenX, touch.screenY, state.x, state.y);
-            if(state.movement) {
-               state.moved = true;
-            }
+            state.id = touch.identifier;
+            state.x = touch.pageX;
+            state.y = touch.pageY;
+            state.target = target;
             break;
          case "touchend":
-            clearTimeout(timer); // clear the timer or taphold will fire!
-            touch = cTouches[0];
-            if(state.wastaphold || !state.last) { // check if the taphold event was fired
-               // state.wastaphold = false;  //clear the state and we have nothing to do
+            cTouches = te.changedTouches;
+            if(cTouches.length === 0) {
                clearState();
                return;
             }
-            
-            // check for swipe events
-            movement = state.movement;
-            tar = $(target);
-            if(movement) {
-               tar.dispatch("swipe").dispatch("swipe" + movement.dir);
-               state.x = state.y = state.movement = state.moved = null;
-            }else {
-               tar.dispatch("tap");  // here the dbltap is fired as -> 'tap', 'tap', 'doubletap'
-               if(state.dbltap) {
-                  state.dbltap = state.last = null;
-                  if(state.target === target) {
-                     tar.dispatch("dbltap");
-                  }
-               }
+            touch = cTouches[0];
+            if(touch.identifier === state.id && 
+                  !hasMoved(state.x, state.y, touch.pageX, touch.pageY) &&
+                  state.target === target) {
+               $(target).dispatch("tap");
             }
             break;
-         default:
+         case "touchcancel":
             clearState();
             break;
       }
    }
       
    $.defineEvent({
+      type: "tap",
       setup: function() {
          $(document).on("touchstart", ontouch)
-            .on("touchmove", ontouch)
             .on("touchend", ontouch)
             .on("touchcancel", ontouch);
       },
       destroy: function() {
          $(document).un("touchstart", ontouch)
-            .un("touchmove", ontouch)
             .un("touchend", ontouch)
             .un("touchcancel", ontouch);
       }
@@ -123,4 +69,30 @@
 })(h5);
 
 
+/**
+ * Double Tap event definition
+ */
+(function($) {
+   var state = {};
 
+   function ontap(te) {
+      var now = Date.now(), elapsed = now - (state.last || now), target = te.target;
+      if(elapsed > 0 && elapsed < 300 && state.target === target) {
+         $(target).dispatch("dbltap");
+         state.last = state.target = null;
+      }else {
+         state.last = now;
+         state.target = te.target;
+      }
+   }
+      
+   $.defineEvent({
+      type: "dbltap",
+      setup: function() {
+         $(document).on("tap", ontap);
+      },
+      destroy: function() {
+         $(document).un("tap", ontap);
+      }
+   });
+})(h5);

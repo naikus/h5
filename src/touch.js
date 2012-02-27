@@ -4,27 +4,25 @@
  * tap, dbltap, taphold, swipe, swipeleft, swiperight
  * @author aniketn3@gmail.com 
  */
- 
 /**
  * Tap event definition
  */
 (function($, undefn) {
-   var state = {id: null, x: null, y: null, target: null }, undef = undefn;
+   var undef = undefn, state = {/* id, x, y, target */};
    
    function clearState() {
-      state.id = state.x = state.y = state.target = undef;
+      state.id = state.x = state.y = state.moved = state.target = undef;
    }
    
    function hasMoved(x1, y1, x2, y2) {
-      var dx = x1 - x2, dy = y1 - y2, xa, ya;
-      return (xa = Math.abs(dx)) > 30 || (ya = Math.abs(dy)) > 30
+      var dx = x1 - x2, dy = y1 - y2;
+      return Math.abs(dx) > 30 || Math.abs(dy) > 30;
    }
    
-   function ontouch(te) {
-      var type = te.type, touch, touches, cTouches, touchId, target = te.target;
+   function handler(te) {
+      var type = te.type, touch, touches = te.touches, cTouches = te.changedTouches, target = te.target;
       switch(type) {
          case "touchstart":
-            touches = te.touches;
             if(touches.length !== 1) {
                return;
             }
@@ -34,9 +32,14 @@
             state.y = touch.pageY;
             state.target = target;
             break;
+         case "touchmove":
+            touch = cTouches[0];
+            if(!state.moved && touch.identifier === state.id) {
+               state.moved = hasMoved(state.x, state.y, touch.pageX, touch.pageY);
+            }
+            break;
          case "touchend":
-            cTouches = te.changedTouches;
-            if(cTouches.length === 0) {
+            if(cTouches.length === 0 || state.moved) {
                clearState();
                return;
             }
@@ -56,14 +59,12 @@
    $.defineEvent({
       type: "tap",
       setup: function() {
-         $(document).on("touchstart", ontouch)
-            .on("touchend", ontouch)
-            .on("touchcancel", ontouch);
+         $(document).on("touchstart", handler).on("touchmove", handler)
+            .on("touchend", handler).on("touchcancel", handler);
       },
       destroy: function() {
-         $(document).un("touchstart", ontouch)
-            .un("touchend", ontouch)
-            .un("touchcancel", ontouch);
+         $(document).un("touchstart", handler).un("touchmove", handler)
+            .un("touchend", handler).un("touchcancel", handler);
       }
    });
 })(h5);
@@ -73,7 +74,7 @@
  * Double Tap event definition
  */
 (function($) {
-   var state = {};
+   var state = {/* last, target */};
 
    function ontap(te) {
       var now = Date.now(), elapsed = now - (state.last || now), target = te.target;
@@ -93,6 +94,141 @@
       },
       destroy: function() {
          $(document).un("tap", ontap);
+      }
+   });
+})(h5);
+
+
+/**
+ * Tap hold event
+ */
+(function($, undefn) {
+      var undef = undefn, state = {/* moved, x, y */}, timer;
+   
+   function hasMoved(x1, y1, x2, y2) {
+      var dx = x1 - x2, dy = y1 - y2;
+      return Math.abs(dx) > 30 || Math.abs(dy) > 30;
+   }
+   
+   function clearState() {
+      state.moved = state.x = state.y = undef;
+   }
+   
+   function handler(te) {
+      var type = te.type, target = te.target;
+      switch(type) {
+         case "touchstart":
+            if(te.touches.length !== 1) {
+               return;
+            }            
+            state.x = te.pageX;
+            state.y = te.pageY;
+            timer = setTimeout(function() {
+               if(!state.moved) {
+                  $(target).dispatch("taphold");
+               }
+            }, 700);
+            break;
+         case "touchmove":
+            if(!state.moved) {
+               state.moved = hasMoved(state.x, state.y, te.pageX, te.pageY);
+            }
+            break;
+         case "touchend":
+         case "touchcancel":
+         default:
+            clearTimeout(timer);
+            clearState();
+            break;
+      }
+   }
+   
+   $.defineEvent({
+      type: "taphold",
+      setup: function() {
+         $(document).on("touchstart", handler).on("touchmove", handler).on("touchend", handler)
+            .on("touchcancel", handler);
+      },
+      destroy: function() {
+         $(document).un("touchstart", handler).un("touchmove", handler).un("touchend", handler)
+            .un("touchcancel", handler);
+      }
+   });
+})(h5);
+
+
+/**
+ * Swipe event
+ */
+(function($, undefn) {
+   var undef = undefn, state = {};
+   
+   /**
+    * Calculate the delta difference between two points (x1,y1) and (x2,y2)
+    * @return A delta object {x: xdelta, y: ydelta} if the difference is more
+    * than 30 pixels or null if its less. The values x and y can be -ve 
+    */
+   function getMovement(x1, y1, x2, y2) {
+      var dx = x1 - x2, dy = y1 - y2, xa, ya;
+      if((xa = Math.abs(dx)) < 30 & (ya = Math.abs(dy)) < 30) {
+         return null;
+      }
+      return {
+         x: dx,
+         y: dy,
+         dir: xa >= ya ? (dx < 0 ? "left" : "right") : (dy < 0 ? "up" : "down") 
+      };
+   }
+   
+   function clearState() {
+      state.id = state.x = state.y = state.movement = undef;
+   }
+   
+   function handler(te) {
+      var type = te.type, touches = te.touches, touch, target, m, evtData;
+      
+      switch(type) {
+         case "touchstart":
+            touches = te.touches;
+            if(touches.length > 1) {
+               return;
+            }
+            touch = touches[0];
+            state.id = touch.identifier;
+            state.x = touch.pageX;
+            state.y = touch.pageY;
+            break;
+         case "touchmove":
+            touches = te.changedTouches;
+            touch = touches[0];
+            if(touch.identifier === state.id && te.touches.length === 1) {
+               state.movement = getMovement(touch.pageX, touch.pageY, state.x, state.y);
+            }
+            break;
+         case "touchend":
+            touches = te.changedTouches;
+            touch = touches[0];
+            if(state.id === touch.identifier && (m = state.movement)) {
+               evtData = {movement: m};
+               $(te.target).dispatch("swipe", evtData);
+               clearState();
+            }
+            break;
+         default:
+            clearState();
+            break;
+      }
+   }
+   
+   $.defineEvent({
+      type: "swipe",
+      setup: function() {
+         $(document).on("touchstart", handler).on("touchmove", handler).on("touchend", handler)
+            .on("touchcancel", handler);
+      },
+      destroy: function() {
+         $(document).un("touchstart", handler).un("touchmove", handler).un("touchend", handler)
+            .un("touchcancel", handler);
       }
    });
 })(h5);

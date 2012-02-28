@@ -76,7 +76,7 @@
 (function($) {
    var state = {/* last, target */};
 
-   function ontap(te) {
+   function handler(te) {
       var now = Date.now(), elapsed = now - (state.last || now), target = te.target;
       if(elapsed > 0 && elapsed < 300 && state.target === target) {
          $(target).dispatch("dbltap");
@@ -90,10 +90,10 @@
    $.defineEvent({
       type: "dbltap",
       setup: function() {
-         $(document).on("tap", ontap);
+         $(document).on("tap", handler);
       },
       destroy: function() {
-         $(document).un("tap", ontap);
+         $(document).un("tap", handler);
       }
    });
 })(h5);
@@ -232,3 +232,6 @@
       }
    });
 })(h5);
+
+
+

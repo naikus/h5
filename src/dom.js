@@ -215,7 +215,7 @@
             });
             return ret.join("");
          }
-         markup = markup || "";
+         markup = typeof markup === "undefined" || markup === null ?  "" : markup;
          isStr = isTypeOf(markup, "String");
          forEach(elements, function(elem) {
             if(isStr) {
@@ -512,6 +512,28 @@
             });
          });
          return this;
+      },
+      
+      css: function(prop, val) {
+         var style;
+         if(getTypeOf(prop) === "Object") {
+            style = [];
+            forEach(prop, function(v, k) {
+               style[style.length] = k + ":" + v;
+            });
+            style = style.join(";");
+         }else {
+            style = prop + ":" + val;
+         }
+         
+         forEach(this.elements, function(elem) {
+            var s = elem.style, oldCss = s.cssText;
+            if(oldCss) {
+               s.cssText = oldCss + ";" + style;
+            }else {
+               s.cssText = style;
+            }
+         });
       },
          
       /**

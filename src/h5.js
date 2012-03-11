@@ -299,6 +299,8 @@
             ret.e = [s];
          }else if(s.length) { // array or nodelist
             ret.e = slice.call(s);
+         }else if(s === global) {
+            ret.e = [s];
          }
          return ret;
       }

@@ -1,3 +1,7 @@
+/**
+ * Convenience wrapper around XMLHttpRequest
+ * @author aniketn3@gmail.com
+ */
 (function($) {
    var forEach = $.forEach,
       isTypeOf = $.isTypeOf,

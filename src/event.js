@@ -1,6 +1,7 @@
 /**
  * The event module. Provides methods to add, remove, delegate and fire events and othe convenicence
  * methods
+ * @author aniketn3@gmail.com
  */
 (function($) {
    var forEach = $.forEach,

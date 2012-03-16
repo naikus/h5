@@ -4,6 +4,7 @@
  * tap, dbltap, taphold, swipe, swipeleft, swiperight
  * @author aniketn3@gmail.com 
  */
+
 /**
  * Tap event definition
  */

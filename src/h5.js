@@ -1,20 +1,3 @@
-/*jslint
-    nomen: false,
-    debug: true,
-    indent: 3,
-    plusplus: false,
-    evil: true, 
-    onevar: true,
-    browser: true,
-    white: false
-*/
-/*global
-    window: true,
-    navigator: true,
-    XMLHttpRequest: true,
-    ActiveXObject: true,
-    unescape: true
-*/
 /**
  * @fileOverview h5 is a compact and lightweight html5 library 
  * @author <a href="mailto:aniket3@gmail.com">Aniket Naik</a>

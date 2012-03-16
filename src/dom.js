@@ -1,6 +1,7 @@
 /**
  * The DOM manipulation module. This provides various convenience methods for working with DOM and
  * css
+ * @author aniketn3@gmail.com
  */
 (function($) {
    var undef,

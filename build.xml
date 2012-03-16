@@ -3,6 +3,7 @@
   <target name="combine">
     <!-- Order is important here -->
     <concat destfile="h5.js">
+      <fileset dir="." includes="LICENSE" />
       <filelist dir="src">
         <file name="h5.js"/>
         <file name="event.js"/>

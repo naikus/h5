@@ -11,7 +11,7 @@
    var undef,
       AProto = Array.prototype,
       OProto = Object.prototype,
-
+      
       slice = AProto.slice,
       nSlice = slice,
       objToString = OProto.toString,
@@ -110,6 +110,10 @@
    function uuid() {
       return huid++;
    }
+   
+   function trim(s) {
+      return s.replace(/(^\s+)|\s+$/g, "");
+   }   
     
    // normalize the slice function
    (function() {
@@ -391,6 +395,7 @@
       nodelist.slice = function(arrayLike, start, end) {
          return slice.call(arrayLike, start, end);
       };
+      nodelist.trim = String.prototype.trim ? function(str) {return str.trim();} : function(str) {return trim(str);}
       nodelist.extend = extend;
       nodelist.getFragments = fragments;
       nodelist.uuid = uuid;

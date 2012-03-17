@@ -12,6 +12,7 @@
       isTypeOf = $.isTypeOf,
       isArray = $.isArray,
       getTypeOf = $.getTypeOf,
+      trim = $.trim,
       clsRegExps = {};
      
    /**
@@ -452,7 +453,7 @@
       addClass: function(cl)  {
          var elements = this.elements;
          forEach(elements, function(el) {
-            if(!addClass(el, cl) || !hasClass(el, cl)) {
+            if(!hasClass(el, cl) && !addClass(el, cl)) {
                el.className += " " + cl;
             }
          });
@@ -473,8 +474,8 @@
       removeClass: function(cl)  {
          forEach(this.elements, function(el) {
             var cName;
-            if(!removeClass(el, cl) && hasClass(el, cl)) {
-               el.className = el.className.replace(classRe(cl), "$1");
+            if(hasClass(el, cl) && !removeClass(el, cl)) {
+               el.className = trim(el.className.replace(classRe(cl), "$1"));
             }        
          });
          return this;

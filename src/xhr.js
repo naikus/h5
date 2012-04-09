@@ -184,10 +184,11 @@
     * A convenience function to GET data from server
     * @param {String} url The url to get data from
     * @param {Function} success The function thats called when ajax succeeds
+    * @param {Function} error The function thats called when ajax has an error
     * All the other parameters are set to default
     */
-   $.get = function(url, success) {
-      xhr({url:url, success: success});
+   $.get = function(url, success, error) {
+      xhr({url:url, success: success, error: error});
    };
    
    /**

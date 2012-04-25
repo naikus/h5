@@ -106,6 +106,11 @@ var AllTests = (function() {
                   name: "thefoo",
                   size: 30,
                   foo: 5,
+                  tabindex: 1,
+                  readonly: true,
+                  "for": "boo",
+                  maxlength: 5,
+                  contenteditable: true,
                   style: "background-color: blue",
                   "class": "moi-class",
                   value: "yay! object attributes"
@@ -113,6 +118,8 @@ var AllTests = (function() {
             equals($("#foo").attr("name"), "thefoo");
             equals($("#foo").attr("size"), "30");
             equals($("#foo").attr("foo"), "5");
+            equals($("#foo").attr("tabindex"), "1");
+            equals($("#foo").attr("contenteditable"), "true");
             // equals($("#foo").attr("style"), "background-color: blue"); fails in IE
             equals($("#foo").val(), "yay! object attributes");
             equals($("#foo").hasClass("moi-class"), true);

@@ -13,6 +13,20 @@
       isArray = $.isArray,
       getTypeOf = $.getTypeOf,
       trim = $.trim,
+      splAttrs = { // thanks jquery :-)
+         tabindex: "tabIndex",
+         readonly: "readOnly",
+         "for": "htmlFor",
+         "class": "className",
+         maxlength: "maxLength",
+         cellspacing: "cellSpacing",
+         cellpadding: "cellPadding",
+         rowspan: "rowSpan",
+         colspan: "colSpan",
+         usemap: "useMap",
+         frameborder: "frameBorder",
+         contenteditable: "contentEditable"
+      },
       clsRegExps = {};
      
    /**
@@ -91,6 +105,17 @@
          forEach(arrNodes, function(node) {
             appendTo.appendChild(node);
          });
+      });
+   }
+   
+   function insertBefore(elem, html) {
+      domify(elem, html, function(theElem, arrNodes) {
+         var node, i, parent = elem.parentNode;
+         // while inserting before, go backwards to maintain order :)
+         for(i = arrNodes.length - 1; i >= 0; i--) {
+            node = arrNodes[i];
+            parent.insertBefore(node, theElem);
+         }
       });
    }
    
@@ -188,8 +213,8 @@
    
    function setAttributes(elem, attrs) {
       forEach(attrs, function(val, key) {
-         var n = key === "class" ? "className" : key;
-         if(n === "className" || n === "value") {
+         var spl = splAttrs[key], n = spl || key;
+         if(spl) {
             elem[n] = val; // @TODO: should this be $(elem).val(val) in case of n === "value"?
          }else {
             elem.setAttribute(key, val);
@@ -198,6 +223,17 @@
    }
      
    $.extension({
+      /*
+      clone: function(bDeep) {
+         var clArr = [];
+         bDeep = typeof bDeep === "undefined" ? false : !!bDeep;
+         forEach(this.elements, function(elem, i) {
+            clArr[i] = elem.cloneNode(bDeep);
+         });
+         return nodelist(clArr);
+      },
+      */
+         
       /**
        * Gets or sets the html string as inner html to all the elements in the current matched 
        * elements. If call without arguments, returns the html contents of the first element in
@@ -243,16 +279,15 @@
        *
        * @memberOf nodelist
        */
-      attr: function(name, value)   {
-         var n = name === "class" ? "className" : name, elements = this.elements, ret, 
-            ntype = typeof name;
+      attr: function(name, value) {
+         var spl = splAttrs[name], n = spl || name, elements = this.elements, ret, ntype = typeof name; 
          if(elements.length === 0)  {
             return value ? this : null;
          }
 
          if(arguments.length === 1) {
             if(ntype === "string") {
-               if(name === "value" || name === "class") {
+               if(spl) {
                   return elements[0][n];
                }
                return elements[0].getAttribute(name);
@@ -263,7 +298,7 @@
                return this;
             }
          }else {
-            if(name === "value" || name === "class") {
+            if(spl) {
                forEach(elements, function(e) {
                   e[n] = value;
                });
@@ -389,7 +424,16 @@
          if(!html || !elements.length) {
             return this;
          }
-         prepend(elements[0], html); 
+         prepend(elements[0], html);            
+         return this;
+      },
+      
+      before: function(html) {
+         var elems = this.elements;
+         if(!html || !elems.length) {
+            return this;
+         }
+         insertBefore(elems[0], html);
          return this;
       },
          

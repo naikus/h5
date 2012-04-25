@@ -408,9 +408,13 @@
          var extnObj = arguments[0], extFunc = arguments[1], name = extnObj, 
          arg1Type = getTypeOf(extnObj);      
             
-         if(arg1Type === "String" && isFunction(extFunc)) {
+         if(arg1Type === "String") {
             if(h5Proto[name]) {
                console.log("Warning! Extension " + name + " is already defined");
+            }
+            if(!extFunc) {
+               console.log("Extension value not provided for " + name);
+               return;
             }
             h5Proto[name] = extFunc;
          }else if(arg1Type === "Object") {
@@ -419,8 +423,6 @@
                   nodelist.extension(key, valFunc);
                }
             });
-         }else {
-            console.log("Invalid extension definition");
          }
       };
         

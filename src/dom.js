@@ -281,7 +281,7 @@
        */
       attr: function(name, value) {
          var spl = splAttrs[name], n = spl || name, elements = this.elements, ret, ntype = typeof name; 
-         if(elements.length === 0)  {
+         if(!elements.length)  {
             return value ? this : null;
          }
 
@@ -322,8 +322,8 @@
        */             
       val: function(theVal)   {
          var n, opts, vals, opv, el, ret, elements = this.elements, rlen;
-         if(elements.length === 0) {
-            return this;
+         if(!elements.length) {
+            return theVal ? this : null;
          }
 
          if(arguments.length === 1) {

@@ -187,10 +187,20 @@
       return cs[prop];
    }
    
+   function getBoundingBox(elem) {
+      // cool! https://developer.mozilla.org/en/DOM/element.getBoundingClientRect
+      if(elem.getBoundingClientRect) { 
+         return elem.getBoundingClientRect();
+      }
+      return getOffsets(elem);
+   }
+   
    function getOffsets(elem)  {
       var o = {
-         left: elem.offsetLeft, 
          top: elem.offsetTop,
+         right: 0,
+         bottom: 0,
+         left: elem.offsetLeft,
          width: elem.offsetWidth,
          height: elem.offsetHeight
       },
@@ -202,13 +212,6 @@
          par = par.offsetParent;
       }
       return o;
-   }
-   
-   function setStyle(elem, props) {
-      var style = elem.style;         
-      forEach(props, function(val, key) {
-         style[key] = val;
-      });
    }
    
    function setAttributes(elem, attrs) {
@@ -280,7 +283,7 @@
        * @memberOf nodelist
        */
       attr: function(name, value) {
-         var spl = splAttrs[name], n = spl || name, elements = this.elements, ret, ntype = typeof name; 
+         var spl = splAttrs[name], n = spl || name, elements = this.elements, ntype = typeof name; 
          if(!elements.length)  {
             return value ? this : null;
          }
@@ -550,12 +553,17 @@
        *    "border": "1px solid #333"
        * });
        */
-      setStyle: function(props)  {
-         forEach(this.elements, function(el) {
-            var style = el.style;         
-            forEach(props, function(val, key) {
-               style[key] = val;
-            });
+      setStyle: function(props, value)  {
+         var type = getTypeOf(props);
+         forEach(this.elements, function(elem) {
+            var style = elem.style;
+            if(props === "Object") {
+               forEach(props, function(val, key) {
+                  style[key] = val;
+               });
+            }else if(props === "String") {
+               style[props] = value || "";
+            }
          });
          return this;
       },
@@ -594,6 +602,11 @@
       offsets: function() {
          var elements = this.elements;
          return elements.length === 0 ? null : getOffsets(elements[0]);
+      },
+      
+      boundingBox: function() {
+         var elems = this.elements;
+         return elems.length ? getBoundingBox(elems[0]) : null;
       }
    });
          

@@ -187,6 +187,7 @@
       return cs[prop];
    }
    
+   /*
    function getBoundingBox(elem) {
       // cool! https://developer.mozilla.org/en/DOM/element.getBoundingClientRect
       if(elem.getBoundingClientRect) { 
@@ -194,6 +195,7 @@
       }
       return getOffsets(elem);
    }
+   */
    
    function getOffsets(elem)  {
       var o = {
@@ -602,12 +604,14 @@
       offsets: function() {
          var elements = this.elements;
          return elements.length === 0 ? null : getOffsets(elements[0]);
-      },
+      }
       
-      boundingBox: function() {
+      /*
+      ,boundingBox: function() {
          var elems = this.elements;
          return elems.length ? getBoundingBox(elems[0]) : null;
       }
+      */
    });
          
 })(h5);

@@ -400,6 +400,7 @@
       nodelist.getFragments = fragments;
       nodelist.uuid = uuid;
       nodelist.createObject = createObject;
+      nodelist.hasOwn = hasOwn;
         
       /**
        * Expose a extension API to extend 

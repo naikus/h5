@@ -81,7 +81,7 @@
       
    function xhr(options) {
       var req, opt = extend({}, xDefaults, options), url = opt.url, dType = opt.dataType, 
-         data = opt.data, mime = mimeTypes[dType] || "text/plain";
+         data = opt.data, postData, mime = mimeTypes[dType] || "text/plain";
          
       // dispatch ajax start event on document
       dispatch("ajaxstart", url);
@@ -132,11 +132,17 @@
       
       if(isTypeOf(data, "Object")) {
          try {
-            data = JSON.stringify(data, null, "");
-            req.setRequestHeader("Content-Type", mime);
+            postData = [];
+            forEach(data, function(val, key) {
+                postData[postData.length] = encodeURIComponent(key) + "=" + encodeURIComponent(val);
+            });
+            postData = postData.join("&");
+            // req.setRequestHeader("Content-Type", mime);
          }catch(e) {}
+      }else {
+          postData = data;
       }
-      req.send(data);
+      req.send(postData);
    }
    
    /**

@@ -29,7 +29,7 @@
       },
       clsRegExps = {};
      
-   /**
+   /*
     * Removes all the children of the specified element using DOM APIs
     * This is used as a fallback method instead of setting innerHTML as "" as this fails in
     * some versions of IE browsers
@@ -71,7 +71,7 @@
             new RegExp("(^|\\s+)" + clazz + "(?:\\s+|$)")); // thank you xui.js :) 
    }
      
-   /**
+   /*
     * Converts the <tt>html</tt> which can be an HTML string, a nodelist or a node, then passes the
     * converted html and the specified <tt>element</tt> to the callback as:
     * <tt>callback(element, arrnodesFromhtml)</tt>.
@@ -175,16 +175,6 @@
          dmap[prop] = val;
          return null;
       }
-   }
-   
-   function getStyle(elem, prop)   {
-      var cs;
-      if(gcs)  {
-         cs = gcs(elem, null);
-      }else {
-         cs = elem.currentStyle;
-      }
-      return cs[prop];
    }
    
    /*
@@ -453,7 +443,7 @@
        * // will result in
        * &lt;p id="bar" class="foo baz"&gt;Hello world&lt;/p&gt;
        */
-      remove: function(/* sel */) {
+      remove: function(/* selector */) {
          var sel, elems = this.elements;
          if(!arguments.length) {
             forEach(elems, function(e) {
@@ -540,13 +530,22 @@
        * var bgcolor = $("#foo").getStyle("backgroundColor");
        */
       getStyle: function(prop)   {
-         var elements = this.elements;
-         return elements.length === 0 ? "" : getStyle(elements[0], prop);
+         var elements = this.elements, cs, elem;
+         if(elements.length === 0) {return "";}
+         
+         elem = elements[0];
+         if(gcs)  {
+            cs = gcs(elem, null);
+         }else {
+            cs = elem.currentStyle;
+         }
+         return cs[prop];
       },
          
       /**
        * Sets the css style properties <tt>props</tt> for all the matched elements
        * @param {Object} props The style properties to set
+       * @param {Object} value The property value if <tt>props</tt> is property name
        * @return {Object} the nodelist object chaining
        * @example
        * // This will set the border and background-color style properties all input elements
@@ -559,7 +558,7 @@
          var type = getTypeOf(props);
          forEach(this.elements, function(elem) {
             var style = elem.style;
-            if(props === "Object") {
+            if(type === "Object") {
                forEach(props, function(val, key) {
                   style[key] = val;
                });

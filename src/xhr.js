@@ -65,7 +65,7 @@
       
    function jsonp(url, success) {
       var jpId = "_jsonp" + uuid(), script,
-         src = url.replace("callback=?", "callback=" + jpId)
+         source = url.replace("callback=?", "callback=" + jpId)
             .replace("jsonp=?", "jsonp=" + jpId),
          handler = function() {
             // dispatch an ajax start event
@@ -75,7 +75,7 @@
       window[jpId] = handler;
       // dispatch an ajax start event
       dispatch("ajaxstart", url);
-      script = $(document.createElement("script")).attr({src: src, type: "text/javascript"});
+      script = $(document.createElement("script")).attr({src: source, type: "text/javascript"});
       $("head").append(script);
    }
       

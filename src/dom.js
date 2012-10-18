@@ -81,7 +81,8 @@
     */
    function domify(element, html, callback)  {
       var nodeName = element.nodeName.toLowerCase(), htmType = getTypeOf(html),
-      isTable = (nodeName === "table" || nodeName === "tbody"), cbElem, frags;
+      isTable = (nodeName === "table" || nodeName === "tbody" || nodeName === "thead" || nodeName === "tfoot"),
+      cbElem, frags;
       
       if(htmType === "String" || htmType === "Number") {
          frags = fragments(html);
@@ -105,33 +106,6 @@
          forEach(arrNodes, function(node) {
             appendTo.appendChild(node);
          });
-      });
-   }
-   
-   function insertBefore(elem, html) {
-      domify(elem, html, function(theElem, arrNodes) {
-         var node, i, parent = elem.parentNode;
-         // while inserting before, go backwards to maintain order :)
-         for(i = arrNodes.length - 1; i >= 0; i--) {
-            node = arrNodes[i];
-            parent.insertBefore(node, theElem);
-         }
-      });
-   }
-   
-   function prepend(elem, html) {
-      domify(elem, html, function(theElem, arrNodes) {
-         var child, node, i;
-         // while prepending, go backwards to maintain order :)
-         for(i = arrNodes.length - 1; i >= 0; i--) {
-            child = theElem.firstChild;
-            node = arrNodes[i];
-            if(child)  { 
-               theElem.insertBefore(node, child);
-            }else {
-               theElem.appendChild(node);
-            }
-         }
       });
    }
    
@@ -176,36 +150,7 @@
          return null;
       }
    }
-   
-   /*
-   function getBoundingBox(elem) {
-      // cool! https://developer.mozilla.org/en/DOM/element.getBoundingClientRect
-      if(elem.getBoundingClientRect) { 
-         return elem.getBoundingClientRect();
-      }
-      return getOffsets(elem);
-   }
-   */
-   
-   function getOffsets(elem)  {
-      var o = {
-         top: elem.offsetTop,
-         right: 0,
-         bottom: 0,
-         left: elem.offsetLeft,
-         width: elem.offsetWidth,
-         height: elem.offsetHeight
-      },
-      par = elem.offsetParent;
-
-      while(par)  {
-         o.left += par.offsetLeft;
-         o.top += par.offsetTop;
-         par = par.offsetParent;
-      }
-      return o;
-   }
-   
+      
    function setAttributes(elem, attrs) {
       forEach(attrs, function(val, key) {
          var spl = splAttrs[key], n = spl || key;
@@ -218,17 +163,6 @@
    }
      
    $.extension({
-      /*
-      clone: function(bDeep) {
-         var clArr = [];
-         bDeep = typeof bDeep === "undefined" ? false : !!bDeep;
-         forEach(this.elements, function(elem, i) {
-            clArr[i] = elem.cloneNode(bDeep);
-         });
-         return nodelist(clArr);
-      },
-      */
-         
       /**
        * Gets or sets the html string as inner html to all the elements in the current matched 
        * elements. If call without arguments, returns the html contents of the first element in
@@ -419,7 +353,20 @@
          if(!html || !elements.length) {
             return this;
          }
-         prepend(elements[0], html);            
+         domify(elements[0], html, function(theElem, arrNodes) {
+            var child, node, i;
+            // while prepending, go backwards to maintain order :)
+            for(i = arrNodes.length - 1; i >= 0; i--) {
+               child = theElem.firstChild;
+               node = arrNodes[i];
+               if(child)  { 
+                  theElem.insertBefore(node, child);
+               }else {
+                  theElem.appendChild(node);
+               }
+            }
+         }); 
+          
          return this;
       },
       
@@ -428,7 +375,14 @@
          if(!html || !elems.length) {
             return this;
          }
-         insertBefore(elems[0], html);
+         domify(elems[0], html, function(theElem, arrNodes) {
+            var node, i, parent = elem.parentNode;
+            // while inserting before, go backwards to maintain order :)
+            for(i = arrNodes.length - 1; i >= 0; i--) {
+               node = arrNodes[i];
+               parent.insertBefore(node, theElem);
+            }
+         });
          return this;
       },
          
@@ -512,7 +466,6 @@
        */
       removeClass: function(cl)  {
          forEach(this.elements, function(el) {
-            var cName;
             if(hasClass(el, cl) && !removeClass(el, cl)) {
                el.className = trim(el.className.replace(classRe(cl), "$1"));
             }        
@@ -601,16 +554,28 @@
        * alert(["top: ", o.top, ", left: ", o.left, ", width: ", o.width, ", height: ", o.height].join(""));
        */
       offsets: function() {
-         var elements = this.elements;
-         return elements.length === 0 ? null : getOffsets(elements[0]);
+         var elements = this.elements, elem, o, par;
+         if(elements.length) {
+            elem = elements[0];
+            o = {
+               top: elem.offsetTop,
+               right: 0,
+               bottom: 0,
+               left: elem.offsetLeft,
+               width: elem.offsetWidth,
+               height: elem.offsetHeight
+            };
+            par = elem.offsetParent;
+
+            while(par)  {
+               o.left += par.offsetLeft;
+               o.top += par.offsetTop;
+               par = par.offsetParent;
+            }
+            return o;
+         }
+         return null;
       }
-      
-      /*
-      ,boundingBox: function() {
-         var elems = this.elements;
-         return elems.length ? getBoundingBox(elems[0]) : null;
-      }
-      */
    });
          
 })(h5);

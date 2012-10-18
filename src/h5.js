@@ -249,7 +249,7 @@
          c = containers[tgName] || div;
          if(isIe) {
             tag = c.tagName.toLowerCase();
-            if(tag === "tbody" || tag === "table" || tag === "thead") {
+            if(tag === "tbody" || tag === "table" || tag === "thead" || tag === "tfoot") {
                return getFrags("table", html, true);
             }
          }

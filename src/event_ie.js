@@ -50,15 +50,15 @@
     */
    function fixEvent(evt, elem) {
       var e = evt || window.event, t = e.target, doc, body;
-      e.preventDefault || (e.preventDefault = function() {e.returnValue = false;});
-      e.stopPropagation || (e.stopPropagation = function() {e.cancelBubble = true;});
+      e.preventDefault || (e.preventDefault = function() {this.returnValue = false;});
+      e.stopPropagation || (e.stopPropagation = function() {this.cancelBubble = true;});
       
       if(!t) {
          t = e.target = e.srcElement || elem;
          e.currentTarget = elem; //ofcourse :D
       }
       
-      // bug in safari?
+      // bug in safari? for text nodes
       if(t.nodeType === 3 ) {
          e.target = e.target.parentNode;
       }

@@ -201,15 +201,10 @@
    /**
     * A convenience function to POST the data to the server
     * @param {String} url The url to get data from
-    * @param {Object|DOM|String} data The data to post (optional)
-    * @param {Function} success The function thats called when ajax succeeds
-    * @param {String} dType The data type of the data expected from server, e.g. xml,json,text 
+    * @param {Object} Options for this post request
     */
-   $.post = function(url, data, success, dType) {
-      var opt = {url: url, method: "POST", data: data, success: success};
-      if(dType) {
-         opt.dataType = dType;
-      }
+   $.post = function(url, opts) {
+      var opt = $.extend(opts, {url: url, method: "POST"});
       xhr(opt);
    };
    

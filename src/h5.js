@@ -215,7 +215,7 @@
     
    /* ------------------------------- The nodelist ---------------------------------------------- */
    h5 = (function() {
-      var htmlRe = /^\s*<(\w+)[^>]*>/,
+      var htmlRe = /^\s*<(!--)?\s*(\w+)[^>]*>/,
       isIe = !!window.ActiveXObject,
       table = doc.createElement("table"),
       tbody = doc.createElement("tbody"),
@@ -266,6 +266,7 @@
          if(!s) {
             return ret;
          }else if(isTypeOf(s, "String")) {
+            s = trim(s);
             if((execRes = htmlRe.exec(s)) !== null) {
                ret.e = fragments(s, execRes[1]);
             }else {
@@ -329,8 +330,18 @@
           * &lt;p id="bar" class="foo baz"&gt;Hello &lt;span&gt;stupid&lt;/span&gt; world&lt;/p&gt;
           */
          find: function(selector)   { 
-            var elements = this.elements;
-            return elements.length === 0 ? nodelist(selector) : nodelist(selector, elements[0]);
+            var elements = this.elements, res = [];
+            if(elements.length === 0) return nodelist(selector);
+            for(var i = 0, len = elements.length; i < len; i++) {
+               var elem = elements[i], nt = elem.nodeType;
+               if(nt === 1 || nt === 9 || nt === 11) {
+                  var found = nodelist(selector, elem).elements;
+                  if(found.length) {
+                     res = res.concat(found);
+                  }
+               }
+            }
+            return nodelist({elements: found});
          },
             
          /**

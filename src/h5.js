@@ -145,8 +145,16 @@
       if(each && isFunction(each)) {
          arr.forEach(callback, thisObj);
       }else {
-         for(key in o) {
-            callback.call(thisObj, o[key], key, arr);
+         if(isArray(o)) {
+             for(var i = 0, len = o.length; i < len; i++) {
+                 callback.call(thisObj, o[i], i, arr);
+             }
+         }else {
+            for(key in o) {
+               if(hasOwn(o, key)) {
+                  callback.call(thisObj, o[key], key, arr);
+               } 
+            }
          }
       }
    }
@@ -244,7 +252,7 @@
          var c, ret, children, tag;
          if(!tgName) {
             ret = htmlRe.exec(html);
-            tgName = ret ? ret[1] : null;
+            tgName = ret ? ret[2] : null;
          }
          c = containers[tgName] || div;
          if(isIe) {
@@ -268,7 +276,7 @@
          }else if(isTypeOf(s, "String")) {
             s = trim(s);
             if((execRes = htmlRe.exec(s)) !== null) {
-               ret.e = fragments(s, execRes[1]);
+               ret.e = fragments(s, execRes[2]);
             }else {
                if(hasqsa) {
                   qr = c.querySelectorAll(s);

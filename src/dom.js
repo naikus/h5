@@ -103,9 +103,9 @@
    
    function append(elem, html) {
       domify(elem, html, function(appendTo, arrNodes) {
-         forEach(arrNodes, function(node) {
-            appendTo.appendChild(node);
-         });
+         for(var i = 0, len = arrNodes.length; i < len; i++)  {
+             appendTo.appendChild(arrNodes[i]);
+         }
       });
    }
    
@@ -182,10 +182,12 @@
             });
             return ret.join("");
          }
-         markup = typeof markup === "undefined" || markup === null ?  "" : markup;
+         markup = markup == null ?  "" : markup;
          isStr = isTypeOf(markup, "String");
-         forEach(elements, function(elem) {
-            if(isStr) {
+         
+         for(var i = 0, len = elements.length; i < len; i++) {
+             var elem = elements[i];
+             if(isStr) {
                try {
                   elem.innerHTML = markup;
                }catch(e)   {
@@ -194,7 +196,7 @@
             }else {
                replace(elem, markup);
             }
-         });
+         }
          return this;
       },
               
@@ -224,8 +226,8 @@
        * @memberOf nodelist
        */
       attr: function(name, value) {
-         var spl = splAttrs[name], n = spl || name, elements = this.elements, ntype = typeof name; 
-         if(!elements.length)  {
+         var spl = splAttrs[name], n = spl || name, elements = this.elements, ntype = typeof name, i, len = elements.length; 
+         if(!len)  {
             return value ? this : null;
          }
 
@@ -236,20 +238,20 @@
                }
                return elements[0].getAttribute(name);
             }else {
-               forEach(elements, function(e) {
-                  setAttributes(e, n);
-               });
+               for(i = 0, len = elements.length; i < len; i++) {
+                   setAttributes(elements[i], n);
+               }
                return this;
             }
          }else {
             if(spl) {
-               forEach(elements, function(e) {
-                  e[n] = value;
-               });
+               for(i = 0; i < len; i++) {
+                   elements[i][n] = value;
+               }
             }else {
-               forEach(elements, function(e) {
-                  e.setAttribute(name, value);
-               });
+               for(i = 0; i < len; i++) {
+                   elements[i].setAttribute(name, value);
+               }
             }
             return this;
          }
@@ -265,13 +267,14 @@
        * @memberOf nodelist
        */             
       val: function(theVal)   {
-         var n, opts, vals, opv, el, ret, elements = this.elements, rlen;
-         if(!elements.length) {
+         var n, opts, vals, opv, el, ret, elem, elements = this.elements, i, j, k, len = elements.length, rlen;
+         if(!len) {
             return theVal ? this : null;
          }
 
          if(arguments.length === 1) {
-            forEach(elements, function(elem) {
+            for(i = 0; i < len; i++) {
+               elem = elements[i];
                n = elem.nodeName.toLowerCase();
                if(n === "select") {
                   opts = $("option", elem).elements;
@@ -279,24 +282,23 @@
                          
                   elem.selectedIndex = -1;
                          
-                  forEach(vals, function(val) {
-                     try {
-                        forEach(opts, function(opt, index) {
-                           opv = opt.value || opt.innerHTML;
-                           if(opv === val) {
-                              opt.selected = "selected";
-                              // elem.selectedIndex = index;
-                              // elem.value = val;
-                              throw "Break";
-                           }
-                           return null;
-                        });
+                  for(j = 0; j < vals.length; j++) {
+                      var val = vals[j];
+                      try {
+                        for(k = 0; k < opts.length; k++) {
+                            var opt = opts[k];
+                            opv = opt.value || opt.innerHTML;
+                            if(opv === val) {
+                               opt.selected = "selected";
+                               break;
+                            }
+                        } // for k
                      }catch(breakExp) {}
-                  });
+                  } // for j
                }else {
                   elem.value = theVal;
                }
-            });
+            }// for
             return this;
          }else {
             el = elements[0];
@@ -304,13 +306,13 @@
             if(n === "select") {
                ret = [];
                opts = $("option", el).elements;
-               forEach(opts, function(opt) {
+               for(i = 0; i < opts.length; i++) {
+                  var opt = opts[i];
                   if(opt.selected) {
                      opv = opt.value || opt.innerHTML;
                      ret[ret.length] = opv;
                   }
-               });
-                     
+               }                     
                rlen = ret.length;
                return rlen === 0 ? "" : rlen === 1 ? ret[0] : ret;
             }else {
@@ -337,9 +339,9 @@
          if(len === 1)  {
             return data(elements[0], name);
          }else {
-            forEach(elements, function(elem) {
-               data(elem, name, value);
-            });
+            for(var i = 0; i < elements.length; i++) {
+                data(elements[i], name, value);
+            }
          }
          return this;
       },
@@ -413,21 +415,21 @@
        * &lt;p id="bar" class="foo baz"&gt;Hello world&lt;/p&gt;
        */
       remove: function(/* selector */) {
-         var sel, elems = this.elements;
+         var sel, elems = this.elements, e, len = elems.length;
          if(!arguments.length) {
-            forEach(elems, function(e) {
-               var p = e.parentNode;
-               p.removeChild(e);
-            });
+            for(var i = 0; i < len; i++) {
+                e = elems[i];
+                e.parentNode.removeChild(e);
+            }
             this.elements = [];
          }else if(elems.length) {
             sel = arguments[0];
-            forEach(elems, function(e) {
-               forEach($(sel, e), function(re) {
+            for(var i = 0; i < len; i++) {
+               $(sel, elems[i]).forEach(function(re) {
                   var n = re.parentNode;
                   return n ? n.removeChild(re) : null;
                });
-            });
+            }
          }
          return this;
       },
@@ -459,12 +461,13 @@
        * &lt;p id="mypara" class="foo baz bar"&gt;Hello&lt;/p&gt;
        */
       addClass: function(cl)  {
-         var elements = this.elements;
-         forEach(elements, function(el) {
+         var elements = this.elements, len = elements.length;
+         for(var i = 0; i < len; i++) {
+            var el = elements[i];
             if(!hasClass(el, cl) && !addClass(el, cl)) {
                el.className += " " + cl;
             }
-         });
+         }
          return this;
       },
          
@@ -480,11 +483,13 @@
        * &lt;p id="mypara" class="foo baz"&gt;Hello&lt;/p&gt;
        */
       removeClass: function(cl)  {
-         forEach(this.elements, function(el) {
+         var elements = this.elements, len = elements.length;
+         for(var i = 0; i < len; i++) {
+            var el = elements[i];
             if(hasClass(el, cl) && !removeClass(el, cl)) {
                el.className = trim(el.className.replace(classRe(cl), "$1"));
-            }        
-         });
+            }
+         }
          return this;
       },
          
@@ -523,9 +528,10 @@
        * });
        */
       setStyle: function(props, value)  {
-         var type = getTypeOf(props);
-         forEach(this.elements, function(elem) {
-            var style = elem.style;
+         var type = getTypeOf(props), elements = this.elements, len = elements.length, elem, style;
+         for(var i = 0; i < len; i++) {
+            elem = elements[i];
+            style = elem.style;
             if(type === "Object") {
                forEach(props, function(val, key) {
                   style[key] = val;
@@ -533,12 +539,12 @@
             }else if(props === "String") {
                style[props] = value || "";
             }
-         });
+         }
          return this;
       },
       
       css: function(prop, val) {
-         var style;
+         var style, elements = this.elements, len = elements.length, elem;
          if(getTypeOf(prop) === "Object") {
             style = [];
             forEach(prop, function(v, k) {
@@ -549,14 +555,15 @@
             style = prop + ":" + val;
          }
          
-         forEach(this.elements, function(elem) {
+         for(var i = 0; i < len; i++) {
+            elem = elements[i];
             var s = elem.style, oldCss = s.cssText;
             if(oldCss) {
                s.cssText = oldCss + ";" + style;
             }else {
                s.cssText = style;
-            }
-         });
+            } 
+         }
       },
          
       /**

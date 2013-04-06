@@ -10,7 +10,12 @@
             window.selectorEngine = $u;
          </script>
       <![endif]-->
-      <script src="../h5.js" type="text/javascript"></script>      
+      <script src="../dist/h5.js" type="text/javascript"></script>
+      
+       <!--[if lt IE 9]> 
+         <script src ="../src/event_ie.js"> </script>
+      <![endif]-->
+      
       <script src="h5-tests.js" type="text/javascript"></script>
       
       <style type="text/css">
@@ -36,6 +41,18 @@
       
       <div id="qunit-fixture">         
          <div class="innerHTML" id="innerHTML">innerHTML test</div>
+         
+         <div id="children">
+             <span>Hello</span>
+             <p>
+                 <i>Hello world</i>
+             </p>
+             <table>
+                 <tr>
+                     <td>TDHello</td>
+                 </tr>
+             </table>
+         </div>
          
          <select id="forEach" multiple="multiple">
             <option value="a">a</option>

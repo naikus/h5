@@ -85,11 +85,18 @@ var AllTests = (function() {
          
          /* ------------------------------------- dom ------------------------------------------- */
          module("dom.js");
+         
          test("$(sel).html() test", function() {
             equals($("#innerHTML").html(), "innerHTML test", "$.html() test");   
             equals($("#innerHTML").html("<p><span>Hello World</span>hey</p>").html().toLowerCase(), 
                "<p><span>hello world</span>hey</p>", "$.html(somehtml) test");
          });
+         
+         test("$(sel).children() test", function() {
+            equals($("#children").children().length, 3, "$.children() test");   
+            equals($("#children").children("p").length, 1, "$.children(selector) test");
+         });
+         
          
          test("$(sel).attr() test", function() {
             equals($(".attrTest").attr("class"), "attrTest", "$(sel).attr(name) test");
@@ -193,7 +200,8 @@ var AllTests = (function() {
             equals($("#eventTest").html(), "bobo", "bobo event test");
          });
          
-         test("$.capture(evt) test", function() {
+         // will not work below IE8
+         test("$.capture(evt) test fails < IE9", function() {
             $("#captureTest").capture("click", function(e) {
                $("#spnevt").html("captured");
             });

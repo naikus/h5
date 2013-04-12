@@ -210,7 +210,7 @@
    /**
     * Extends the target object from multiple sources
     */
-   function extend(/*target, source0, souce1, souce2, ... */) {
+   function shallowCopy(/*target, source0, souce1, souce2, ... */) {
       var target = arguments[0], sources = slice.call(arguments, 1);
       forEach(sources, function(src) {
          for(var k in src) {
@@ -415,7 +415,7 @@
          return slice.call(arrayLike, start, end);
       };
       nodelist.trim = String.prototype.trim ? function(str) {return str.trim();} : function(str) {return trim(str);}
-      nodelist.extend = extend;
+      nodelist.shallowCopy = shallowCopy;
       nodelist.getFragments = fragments;
       nodelist.uuid = uuid;
       nodelist.createObject = createObject;

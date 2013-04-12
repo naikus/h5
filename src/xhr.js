@@ -8,7 +8,6 @@
       getTypeOf = $.getTypeOf,
       slice = $.slice,
       noop = function() {},
-      extend = $.extend,
       xmlhttp = window.XMLHttpRequest,
       doc = $(document), // for global ajax events
       uuid = $.uuid,  
@@ -45,12 +44,13 @@
       xDefaults = {
          url: window.location.href,
          method: "GET",
-         contentType: "application/x-www-form-urlencoded",
          async: true,
          data: null,
          dataType: "text",
          //timeout: -1,
-         headers: {},
+         headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+         },
          success: noop,
          error: noop
       };
@@ -80,7 +80,7 @@
    }
       
    function xhr(options) {
-      var req, opt = extend({}, xDefaults, options), url = opt.url, dType = opt.dataType, 
+      var req, opt = $.shallowCopy({}, xDefaults, options), url = opt.url, dType = opt.dataType, 
          data = opt.data, postData, mime = mimeTypes[dType] || "text/plain";
          
       // dispatch ajax start event on document
@@ -93,10 +93,16 @@
          req.open(opt.method, url, opt.async);
       }
       
-      forEach(opt.headers, function(v, k) {
-         req.setRequestHeader(k, v);
-      });
+      if(data) {
+         // req.setRequestHeader("Content-Type", opt.contentType);
+         req.setRequestHeader("Accept", mime);
+      }
       req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+      if(opt.headers) {
+         forEach(opt.headers, function(v, k) {
+            req.setRequestHeader(k, v);
+         });
+      }
       
       req.onreadystatechange = function() {
          var state = req.readyState, code, err, data, handler;
@@ -126,23 +132,7 @@
          }
       };
       
-      if(data) {
-         req.setRequestHeader("Content-Type", opt.contentType);
-         req.setRequestHeader("Accept", mime);
-      }
-      
-      if(isTypeOf(data, "Object")) {
-         try {
-            postData = [];
-            forEach(data, function(val, key) {
-                postData[postData.length] = encodeURIComponent(key) + "=" + encodeURIComponent(val);
-            });
-            postData = postData.join("&");
-            // req.setRequestHeader("Content-Type", mime);
-         }catch(e) {}
-      }else {
-          postData = data;
-      }
+      postData = data || null;
       req.send(postData);
    }
    
@@ -154,7 +144,7 @@
     * <pre>
     * url         (String)     The url to make the ajax request     (window.location.href)
     * method      (String)     The HTTP method (GET|POST|HEAD)      ("GET")
-    * contentType (String)     The content type of this request     ("application/x-www-form-urlencoded")
+
     * async       (boolean)    Whether to make an async request     (true)
     * data        (DOM|Object|String) The data to send with request (null)
     * dataType    (String)     The expected resultent dataType      
@@ -204,7 +194,7 @@
     * @param {Object} Options for this post request
     */
    $.post = function(url, opts) {
-      var opt = $.extend(opts, {url: url, method: "POST"});
+      var opt = $.shallowCopy(opts, {url: url, method: "POST"});
       xhr(opt);
    };
    

@@ -393,7 +393,7 @@
             return this;
          }
          domify(elems[0], html, function(theElem, arrNodes) {
-            var node, i, parent = elem.parentNode;
+            var node, i, parent = theElem.parentNode;
             // while inserting before, go backwards to maintain order :)
             for(i = arrNodes.length - 1; i >= 0; i--) {
                node = arrNodes[i];

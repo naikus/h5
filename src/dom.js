@@ -236,7 +236,8 @@
                if(spl) {
                   return elements[0][n];
                }
-               return elements[0].getAttribute(name);
+               // getAttribute fails in older versions of safari ipod touch 3.1.2
+               return elements[0].getAttribute ? elements[0].getAttribute(name) : elements[0][name];
             }else {
                for(i = 0, len = elements.length; i < len; i++) {
                    setAttributes(elements[i], n);

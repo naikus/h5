@@ -223,7 +223,8 @@
     
    /* ------------------------------- The nodelist ---------------------------------------------- */
    h5 = (function() {
-      var htmlRe = /^\s*<(!--)?\s*(\w+)[^>]*>/,
+      // var htmlRe = /^\s*<(!--)?\s*(\w+)[^>]*>/,
+      var htmlRe = /^\s*<(!--\s*.*)?(\w+)[^>]*>/,
       isIe = !!window.ActiveXObject,
       table = doc.createElement("table"),
       tbody = doc.createElement("tbody"),

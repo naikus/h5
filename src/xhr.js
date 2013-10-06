@@ -86,7 +86,7 @@
       // dispatch ajax start event on document
       dispatch("ajaxstart", url);
       
-      req = xmlhttp ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+      req = xmlhttp ? new XMLHttpRequest({mozSystem: true}) : new ActiveXObject("Microsoft.XMLHTTP");
       if(opt.username) { 
          req.open(opt.method, url, opt.async, opt.username, opt.password);
       }else {

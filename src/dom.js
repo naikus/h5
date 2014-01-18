@@ -23,6 +23,8 @@
          cellpadding: "cellPadding",
          rowspan: "rowSpan",
          colspan: "colSpan",
+         disable: "disabled",
+         checked: "checked",
          usemap: "useMap",
          frameborder: "frameBorder",
          contenteditable: "contentEditable"

@@ -175,6 +175,21 @@ var AllTests = (function() {
                "testvalue", "$(sel).data(name, value) test");
          });
          
+         test("$(sel).css() test", function() {
+            $(".cssTest").css("height", "100px");
+            equals($(".cssTest").getStyle("height"), "100px", "$(sel).css(name, val) test");
+            
+            $(".cssTest").css({
+               width: "100px",
+               height: "200px",
+               "background-color": "#333",
+               color: "white"
+            });
+            
+            equals($(".cssTest").getStyle("width"), "100px", "$(sel).css(props) test");
+            
+         });
+         
          
          /* ------------------------------------- event ----------------------------------------- */
          module("event.js");

@@ -197,7 +197,7 @@
       var ret = [];
       forEach(arr, function(val, i, arr) {
          if(typeof val !== "undefined") {
-            var retVal = callback.call(thisObj, val);
+            var retVal = callback.call(thisObj, val, i, arr);
             if(retVal !== null && typeof retVal !== "undefined") {
                ret[ret.length] = retVal;
             }

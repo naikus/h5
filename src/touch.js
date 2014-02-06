@@ -17,7 +17,7 @@
    
    function hasMoved(x1, y1, x2, y2) {
       var dx = x1 - x2, dy = y1 - y2;
-      return Math.abs(dx) > 30 || Math.abs(dy) > 30;
+      return Math.abs(dx) > 10 || Math.abs(dy) > 10;
    }
    
    function handler(te) {
@@ -108,7 +108,7 @@
    
    function hasMoved(x1, y1, x2, y2) {
       var dx = x1 - x2, dy = y1 - y2;
-      return Math.abs(dx) > 30 || Math.abs(dy) > 30;
+      return Math.abs(dx) > 20 || Math.abs(dy) > 20;
    }
    
    function clearState() {

@@ -132,7 +132,7 @@
             break;
          case "touchmove":
             if(!state.moved) {
-               if(state.moved = hasMoved(state.x, state.y, te.pageX, te.pageY)) {
+               if(state.moved = hasMoved(state.x, state.y, te.pageX, te.pageY)) { // jshint ignore:line
                   clearTimeout(timer);
                }
             }

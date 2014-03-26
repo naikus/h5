@@ -49,8 +49,8 @@
     */
    function fixEvent(evt, elem) {
       var e = evt || window.event, t = e.target, doc, body;
-      e.preventDefault || (e.preventDefault = function() {this.returnValue = false;});
-      e.stopPropagation || (e.stopPropagation = function() {this.cancelBubble = true;});
+      e.preventDefault = e.preventDefault || function() {this.returnValue = false;};
+      e.stopPropagation = e.stopPropagation || function() {this.cancelBubble = true;};
       
       if(!t) {
          t = e.target = e.srcElement || elem;
@@ -465,7 +465,7 @@
       type = definition.type;
       if(!type) { // this is unmanaged eager definition, probably defining multiple custom events
          $.ready(function() {
-            definition.setup()
+            definition.setup();
          });
          $(document).on("unload", function() {
             definition.destroy();

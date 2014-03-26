@@ -137,6 +137,7 @@
             break;
          case "touchend":
          case "touchcancel":
+            /* falls through */
          default:
             clearTimeout(timer);
             clearState();

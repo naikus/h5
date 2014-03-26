@@ -91,8 +91,13 @@
    }
    
    function sliceList(start, end)  {
-      var arr, i, len = this.length, s = start || 0, e = end || len;
+      var arr, i, 
+              /* jshint validthis:true */
+              len = this.length, 
+              s = start || 0, e = end || len;
+      /* jshint validthis:true */
       if(isArray(this)) {
+         /* jshint validthis:true */
          arr = nSlice.call(this, s, e);
       }else {
          // so that we can have things like sliceList(1, -1);
@@ -415,7 +420,7 @@
       nodelist.slice = function(arrayLike, start, end) {
          return slice.call(arrayLike, start, end);
       };
-      nodelist.trim = String.prototype.trim ? function(str) {return str.trim();} : function(str) {return trim(str);}
+      nodelist.trim = String.prototype.trim ? function(str) {return str.trim();} : function(str) {return trim(str);};
       nodelist.shallowCopy = shallowCopy;
       nodelist.getFragments = fragments;
       nodelist.uuid = uuid;

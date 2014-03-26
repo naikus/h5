@@ -207,7 +207,7 @@
       type = definition.type;
       if(!type) { // this is unmanaged eager definition, probably defining multiple custom events
          $.ready(function() {
-            definition.setup()
+            definition.setup();
          });
          $(document).on("unload", function() {
             definition.destroy();

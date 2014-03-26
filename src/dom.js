@@ -270,7 +270,7 @@
        * @memberOf nodelist
        */             
       val: function(theVal)   {
-         var n, opts, vals, opv, el, ret, elem, elements = this.elements, i, j, k, len = elements.length, rlen;
+         var n, opts, opt, vals, opv, el, ret, elem, elements = this.elements, i, j, k, len = elements.length, rlen;
          if(!len) {
             return theVal ? this : null;
          }
@@ -284,12 +284,13 @@
                   vals = isTypeOf(theVal, "Array") ? theVal : [theVal];
                          
                   elem.selectedIndex = -1;
-                         
+                  
+                  var val;
                   for(j = 0; j < vals.length; j++) {
-                      var val = vals[j];
+                      val = vals[j];
                       try {
                         for(k = 0; k < opts.length; k++) {
-                            var opt = opts[k];
+                            opt = opts[k];
                             opv = opt.value || opt.innerHTML;
                             if(opv === val) {
                                opt.selected = "selected";
@@ -310,7 +311,7 @@
                ret = [];
                opts = $("option", el).elements;
                for(i = 0; i < opts.length; i++) {
-                  var opt = opts[i];
+                  opt = opts[i];
                   if(opt.selected) {
                      opv = opt.value || opt.innerHTML;
                      ret[ret.length] = opv;
@@ -418,20 +419,21 @@
        * &lt;p id="bar" class="foo baz"&gt;Hello world&lt;/p&gt;
        */
       remove: function(/* selector */) {
-         var sel, elems = this.elements, e, len = elems.length;
+         var sel, elems = this.elements, e, len = elems.length, i,
+               remover = function(re) {
+                  var n = re.parentNode;
+                  return n ? n.removeChild(re) : null;
+               };
          if(!arguments.length) {
-            for(var i = 0; i < len; i++) {
+            for(i = 0; i < len; i++) {
                 e = elems[i];
                 e.parentNode.removeChild(e);
             }
             this.elements = [];
          }else if(elems.length) {
             sel = arguments[0];
-            for(var i = 0; i < len; i++) {
-               $(sel, elems[i]).forEach(function(re) {
-                  var n = re.parentNode;
-                  return n ? n.removeChild(re) : null;
-               });
+            for(i = 0; i < len; i++) {
+               $(sel, elems[i]).forEach(remover);
             }
          }
          return this;
@@ -536,9 +538,9 @@
             elem = elements[i];
             style = elem.style;
             if(type === "Object") {
-               forEach(props, function(val, key) {
-                  style[key] = val;
-               });
+               for(var key in props) {
+                  style[key] = props[key];
+               }
             }else if(props === "String") {
                style[props] = value || "";
             }

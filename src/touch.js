@@ -8,16 +8,16 @@
 /**
  * Tap event definition
  */
-(function($, undefn) {
-   var undef = undefn, state = {/* id, x, y, target */};
+(function($, undefined) {
+   var state = {/* id, x, y, target */};
    
    function clearState() {
-      state.id = state.x = state.y = state.moved = state.target = undef;
+      state.id = state.x = state.y = state.moved = state.target = undefined;
    }
    
    function hasMoved(x1, y1, x2, y2) {
       var dx = x1 - x2, dy = y1 - y2;
-      return Math.abs(dx) > 30 || Math.abs(dy) > 30;
+      return Math.abs(dx) > 15 || Math.abs(dy) > 15;
    }
    
    function handler(te) {
@@ -74,7 +74,7 @@
 /**
  * Double Tap event definition
  */
-(function($) {
+(function($, undefined) {
    var state = {/* last, target */};
 
    function handler(te) {
@@ -103,12 +103,12 @@
 /**
  * Tap hold event
  */
-(function($, undefn) {
-      var undef = undefn, state = {/* moved, x, y */}, timer;
+(function($, undefined) {
+      var state = {/* moved, x, y */}, timer;
    
    function hasMoved(x1, y1, x2, y2) {
       var dx = x1 - x2, dy = y1 - y2;
-      return Math.abs(dx) > 30 || Math.abs(dy) > 30;
+      return Math.abs(dx) > 20 || Math.abs(dy) > 20;
    }
    
    function clearState() {
@@ -132,7 +132,9 @@
             break;
          case "touchmove":
             if(!state.moved) {
-               state.moved = hasMoved(state.x, state.y, te.pageX, te.pageY);
+               if(state.moved = hasMoved(state.x, state.y, te.pageX, te.pageY)) {
+                  clearTimeout(timer);
+               }
             }
             break;
          case "touchend":
@@ -162,8 +164,8 @@
 /**
  * Swipe event
  */
-(function($, undefn) {
-   var undef = undefn, state = {};
+(function($, undefined) {
+   var state = {};
    
    /**
     * Calculate the delta difference between two points (x1,y1) and (x2,y2)

@@ -4,7 +4,7 @@
  */
 (function($) {
    var forEach = $.forEach,
-      isTypeOf = $.isTypeOf,
+      // isTypeOf = $.isTypeOf,
       getTypeOf = $.getTypeOf,
       slice = $.slice,
       noop = function() {},

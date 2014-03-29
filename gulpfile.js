@@ -70,12 +70,10 @@ gulp.task("build", ["clean"], function() {
  
    gulp.src(config.modules)
          .pipe(concat("h5.js"))
-         .pipe(gulp.dest(config.dist_dir));
- 
-   gulp.src(config.modules)
+         .pipe(gulp.dest(config.dist_dir))
          .pipe(concat("h5.min.js"))
          .pipe(gulp.dest(config.dist_dir))
-         .pipe(uglify())
-         .pipe(jshint({eqnull: true, comments: /^\/\*\!*/}))
-         .pipe(gulp.dest(config.dist_dir));
+         .pipe(uglify({comments: /^\/\*\!*/}))
+         .pipe(jshint({eqnull: true}))
+         .pipe(gulp.dest(config.dist_dir));         
 });

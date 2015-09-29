@@ -220,7 +220,7 @@
     * Allows to load the contents of the specified url into this element.
     */
    $.extension("load", function(url, selector, success) {
-      var elems = this.elements, me = this, sel = selector, callback = success;
+      var elems = this.h5Elements, me = this, sel = selector, callback = success;
       if(typeof sel === "function") {
          callback = selector;
          sel = null;

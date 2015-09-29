@@ -299,8 +299,8 @@
                ret.e = slice.call(qr);
                ret.s = s;
             }
-         }else if(s.elements) { // h5 object
-            ret.e = s.elements;
+         }else if(s.h5Elements) { // h5 object
+            ret.e = s.h5Elements;
             ret.s = s.selector;
          }else if(s.nodeName) { // dom element
             ret.e = [s];
@@ -329,11 +329,11 @@
           * @memberOf nodelist
           */
          get: function(idx)   {
-            return this.elements[idx];
+            return this.h5Elements[idx];
          },
             
          count: function() {
-            return this.elements.length;
+            return this.h5Elements.length;
          },
             
          /**
@@ -349,18 +349,18 @@
           * &lt;p id="bar" class="foo baz"&gt;Hello &lt;span&gt;stupid&lt;/span&gt; world&lt;/p&gt;
           */
          find: function(selector)   { 
-            var elements = this.elements, res = [];
+            var elements = this.h5Elements, res = [];
             if(elements.length === 0) return nodelist(selector);
             for(var i = 0, len = elements.length; i < len; i++) {
                var elem = elements[i], nt = elem.nodeType;
                if(nt === 1 || nt === 9 || nt === 11) {
-                  var found = nodelist(selector, elem).elements;
+                  var found = nodelist(selector, elem).h5Elements;
                   if(found.length) {
                      res = res.concat(found);
                   }
                }
             }
-            return nodelist({elements: res});
+            return nodelist({h5Elements: res});
          },
             
          /**
@@ -378,7 +378,7 @@
           * });
           */
          forEach: function(callback, ctx) {
-            forEach(this.elements.slice(0), callback, ctx || global);
+            forEach(this.h5Elements.slice(0), callback, ctx || global);
             return this;
          },
             
@@ -398,7 +398,7 @@
           * });
           */
          filter: function(callback, ctx) {
-            return filter(this.elements.slice(0), callback, ctx || global);
+            return filter(this.h5Elements.slice(0), callback, ctx || global);
          }
       };
         
@@ -407,9 +407,9 @@
        * DOM object(s) or array of object/dom nodes
        */
       function nodelist(sel, ctx) {
-         ctx = ctx ? ctx.elements ? ctx.elements[0] : ctx : doc;
+         ctx = ctx ? ctx.h5Elements ? ctx.h5Elements[0] : ctx : doc;
          var elemSel = elAndSel(sel, ctx), h5 = createObject(h5Proto);
-         h5.elements = elemSel.e;
+         h5.h5Elements = elemSel.e;
          h5.selector = elemSel.s;
          h5.context = ctx;
          return h5;

@@ -33,6 +33,8 @@
          cancelable = data.cancelable === false ? false : true;   
          evt = document.createEvent("Events");
 
+      evt.data = data;
+      /*
       if(isTypeOf(props, "Object")) {
          for(prop in data) {
             if(prop !== "bubbles" && prop !== "cancelable") {
@@ -41,7 +43,8 @@
          }
       }else {
          evt.data = props;
-      }      
+      }
+      */
       evt.initEvent(type, bubbles, cancelable);
       return evt;      
    }
@@ -100,7 +103,7 @@
        * @see $.capture(type, callback)
        */
       on: function(type, callback) {
-         var elems = this.elements;
+         var elems = this.h5Elements;
          setupCustomEvent(type, elems);
          
          forEach(elems, function(elem) {
@@ -117,7 +120,7 @@
        * @param {boolean} capture Whether the callback was registered for capturing or bubbling phase
        */
       un: function(type, callback, capture) {
-         var elems = this.elements;
+         var elems = this.h5Elements;
          destroyCustomEvent(type, elems);
          forEach(elems, function(elem) {
             elem.removeEventListener(type, callback, capture || false);
@@ -134,7 +137,7 @@
        * @see $.on(type, callback)
        */
       capture: function(type, callback) {
-         var elems = this.elements;
+         var elems = this.h5Elements;
          setupCustomEvent(type, elems);
          forEach(elems, function(elem) {
             elem.addEventListener(type, callback, true);
@@ -149,7 +152,7 @@
        * the data argument is not an object, its set into the property data.event
        */
       dispatch: function(type, data) {
-         forEach(this.elements, function(elem) {
+         forEach(this.h5Elements, function(elem) {
             var evt = createEvent(type, data);
             return elem.dispatchEvent(evt);
          });

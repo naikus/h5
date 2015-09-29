@@ -103,6 +103,8 @@
          evt = document.createEventObject();
       }
       
+      evt.data = data;
+      /*
       if(isTypeOf(props, "Object")) {
          for(prop in data) {
             if(prop !== "bubbles" && prop !== "cancelable") {
@@ -112,7 +114,7 @@
       }else {
          evt.data = props;
       }
-      
+      */
       if(evt.initEvent) {
          evt.initEvent(type, bubbles, cancelable);
       }
@@ -334,7 +336,7 @@
        * @see $.capture(type, callback, data)
        */
       on: function(type, callback, data) {
-         var evt = parse(type), domEvt = evt.type, elems = this.elements;
+         var evt = parse(type), domEvt = evt.type, elems = this.h5Elements;
          setupCustomEvent(domEvt, elems);
          forEach(elems, function(elem) {
             var h = eventStore.createHandler(elem, type, callback, false, data);
@@ -353,7 +355,7 @@
        * @param {boolean} capture Whether the callback was registered for capturing or bubbling phase
        */
       un: function(type, callback, capture) {
-         var evt = parse(type), domEvt = evt.type, elems = this.elements;
+         var evt = parse(type), domEvt = evt.type, elems = this.h5Elements;
          destroyCustomEvent(domEvt, elems);
          forEach(elems, function(elem) {
             var h = eventStore.deleteHandler(elem, type, callback, capture);
@@ -374,7 +376,7 @@
        * @see $.on(type, callback, data)
        */
       capture: function(type, callback, data) {
-         var evt = parse(type), domEvt = evt.type, elems = this.elements;
+         var evt = parse(type), domEvt = evt.type, elems = this.h5Elements;
          setupCustomEvent(domEvt, elems);
          forEach(elems, function(elem) {
             var h = eventStore.createHandler(elem, type, callback, true, data);
@@ -392,7 +394,7 @@
        * the data argument is not an object, its set into the property data.event
        */
       dispatch: function(type, data) {
-         forEach(this.elements, function(elem) {
+         forEach(this.h5Elements, function(elem) {
             var evt = createEvent(type, data), arrh;
             if(elem.dispatchEvent) {
                elem.dispatchEvent(evt);

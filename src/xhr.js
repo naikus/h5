@@ -85,7 +85,7 @@
       
    function xhr(options) {
       var req, opt = $.shallowCopy({}, xDefaults, options), url = opt.url, dType = opt.dataType, 
-         data = opt.data, postData, mime = mimeTypes[dType] || "text/plain";
+         data = opt.data, postData, mime = mimeTypes[dType] || "text/plain", wasConnected = false;
          
       // dispatch ajax start event on document
       dispatch("ajaxstart", url);
@@ -110,9 +110,16 @@
       
       req.onreadystatechange = function() {
          var state = req.readyState, code, err, data, handler;
+         
+         // This is for safari/chrome where ready state is 4 but status is 0 in case of local
+         // files i.e. file://
+         if(state === 2 || state === 3) {
+           wasConnected = true;
+         }
+         
          if(state === 4) {
             code = req.status;
-            if((code >= 200 && code < 400) || code === 0) {
+            if((code >= 200 && code < 400) || (code === 0 && wasConnected)) {
                dispatch("ajaxsuccess", url);
                handler = handlers[dType] || handlers.text;
                try {

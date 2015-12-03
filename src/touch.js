@@ -215,8 +215,8 @@
             touches = te.changedTouches;
             touch = touches[0];
             if(state.id === touch.identifier && (m = state.movement)) {
-               evtData = {movement: m};
-               $(te.target).dispatch("swipe", evtData); // available as event.movement
+               evtData = m;
+               $(te.target).dispatch("swipe", evtData); // available as event.data
                clearState();
             }
             break;

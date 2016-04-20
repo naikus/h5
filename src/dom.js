@@ -426,7 +426,7 @@
          if(!arguments.length) {
             for(i = 0; i < len; i++) {
                 e = elems[i];
-                e.parentNode.removeChild(e);
+                (e.parentNode && e.parentNode.removeChild(e));
             }
             // this.h5Elements = [];
          }else if(elems.length) {

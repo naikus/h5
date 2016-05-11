@@ -200,6 +200,18 @@
          }
          return this;
       },
+      
+      outerhtml: function() {
+        var element = this.h5Elements[0], html, wrapper;
+        if(!element) {return null;}
+        html = element.outerHTML;
+        if(!html) {
+          wrapper = document.createElement("div");
+          wrapper.appendChild(element.cloneNode(true));
+          html = wrapper.innerHTML;
+        }
+        return html;
+      },
               
       children: function(selector) {
          var empty = [], ret, thisElem;

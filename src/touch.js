@@ -30,7 +30,7 @@
   }
   
   $.EventTypes = Events;
-  console.log($.EventTypes);
+  // console.log($.EventTypes);
   
 })(h5);
 
@@ -81,7 +81,11 @@
             if(touch.identifier === state.id && !state.moved &&
                   // !hasMoved(state.x, state.y, touch.pageX, touch.pageY) &&
                   state.target === target) {
+               // Since iOS Safari dispatches a taphold if event handler has native alert
+               $(document).dispatch("_tapholdcancel");
+               
                $(target).dispatch("tap");
+               clearState();
             }
             break;
          case EventTypes.touchcancel:
@@ -161,7 +165,9 @@
             state.y = te.pageY;
             timer = setTimeout(function() {
                if(!state.moved) {
+                  // Since iOS Safari dispatches a taphold if event handler has native alert
                   $(document).dispatch("_tapcancel");
+                  
                   $(target).dispatch("taphold");
                }
             }, 700);
@@ -188,7 +194,10 @@
       setup: function() {
          $(document).on(EventTypes.touchstart, handler).on(EventTypes.touchmove, handler)
             .on(EventTypes.touchend, handler)
-            .on(EventTypes.touchcancel, handler);
+            .on(EventTypes.touchcancel, handler)
+            .on("_tapholdcancel", function() {
+                clearTimeout(timer);
+            });
       },
       destroy: function() {
          $(document).un(EventTypes.touchstart, handler).un(EventTypes.touchmove, handler)

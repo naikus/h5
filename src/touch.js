@@ -14,7 +14,8 @@
     touchstart: "touchstart",
     touchend: "touchend",
     touchmove: "touchmove",
-    touchcancel: "touchcancel"
+    touchcancel: "touchcancel",
+    swipe: "swipe"
   };
   
   if(!("ontouchstart" in document.documentElement)) {
@@ -25,12 +26,32 @@
       touchstart: "mousedown",
       touchend: "mouseup",
       touchmove: "mousemove",
-      touchcancel: "touchcancel"
+      touchcancel: "touchcancel",
+      swipe: "swipe"
     };
   }
   
   $.EventTypes = Events;
-  // console.log($.EventTypes);
+  
+
+  var formElementNames = ["input", "select", "checkbox", "radio", "textarea", "button", "a"];
+  $.StopEvent = function(e) {
+    var ne;
+    if(e.data && (ne = e.data.nativeEvent)) {
+      ne.stopPropagation();
+      ne.preventDefault();
+    }
+    /*
+    var target = te.target, nodeName = target.nodeName;
+    if(nodeName) {
+      nodeName = nodeName.toLowerCase();
+    }
+    if(te.touches && formElementNames.indexOf(nodeName) === -1) {
+      te.stopPropagation();
+      te.preventDefault();
+    }
+    */
+  };
   
 })(h5);
 
@@ -81,10 +102,8 @@
             if(touch.identifier === state.id && !state.moved &&
                   // !hasMoved(state.x, state.y, touch.pageX, touch.pageY) &&
                   state.target === target) {
-               // Since iOS Safari dispatches a taphold if event handler has native alert
                $(document).dispatch("_tapholdcancel");
-               
-               $(target).dispatch("tap");
+               $(target).dispatch("tap", {nativeEvent: te});
                clearState();
             }
             break;
@@ -119,7 +138,7 @@
    function handler(te) {
       var now = Date.now(), elapsed = now - (state.last || now), target = te.target;
       if(elapsed > 0 && elapsed < 300 && state.target === target) {
-         $(target).dispatch("dbltap");
+         $(target).dispatch("dbltap", {nativeEvent: te});
          state.last = state.target = null;
       }else {
          state.last = now;
@@ -167,8 +186,7 @@
                if(!state.moved) {
                   // Since iOS Safari dispatches a taphold if event handler has native alert
                   $(document).dispatch("_tapcancel");
-                  
-                  $(target).dispatch("taphold");
+                  $(target).dispatch("taphold", {nativeEvent: te});
                }
             }, 700);
             break;
@@ -263,9 +281,21 @@
             touch = touches[0];
             if(state.id === touch.identifier && (m = state.movement)) {
                evtData = m;
+               evtData.nativeEvent = te;
                $(te.target).dispatch("swipe", evtData); // available as event.movement
                clearState();
             }
+            break;
+          case EventTypes.touchcancel:
+            // Some chrome versions wrongly fire touch cancel on swipe gestures android 4.4.2
+            touches = te.changedTouches;
+            touch = touches[0];
+            if(state.id === touch.identifier && (m = state.movement)) {
+               evtData = m;
+               evtData.nativeEvent = te;
+               $(te.target).dispatch("swipe", evtData); // available as event.movement
+            }
+            clearState();
             break;
          default:
             clearState();

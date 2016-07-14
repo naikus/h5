@@ -552,7 +552,7 @@
                for(var key in props) {
                   style[key] = props[key];
                }
-            }else if(props === "String") {
+            }else if(type === "String") {
                style[props] = value || "";
             }
          }

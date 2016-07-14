@@ -103,9 +103,9 @@
       }
       req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
       if(opt.headers) {
-         forEach(opt.headers, function(v, k) {
-            req.setRequestHeader(k, v);
-         });
+         for(var k in opt.headers) {
+            req.setRequestHeader(k, opt.headers[k]);
+         }
       }
       
       if(opt.timeout) {
